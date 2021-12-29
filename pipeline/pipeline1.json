@@ -40,7 +40,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"on": {
-						"value": "item().SourceLocation",
+						"value": "@activity('Lookup1').output.value[0].SourceLocation",
 						"type": "Expression"
 					},
 					"cases": [
