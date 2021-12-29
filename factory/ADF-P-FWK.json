@@ -1,0 +1,9 @@
+{
+	"name": "ADF-P-FWK",
+	"location": "australiaeast",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "0133d723-8ca8-409c-8156-09bb046c879d",
+		"tenantId": "f03f9513-a64b-4f25-9330-ef757710f1a0"
+	}
+}

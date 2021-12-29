@@ -1,0 +1,24 @@
+{
+	"name": "FrameworkFunctions",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Interact with the Azure Functions App used as middle ware when making requests to Worker pipelines. Authentication done at the Function App level.",
+		"annotations": [
+			"procfwk"
+		],
+		"type": "AzureFunction",
+		"typeProperties": {
+			"functionAppUrl": "https://afa-p-fwk.azurewebsites.net",
+			"functionKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "Keys",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "kv-AFA-P-FWK"
+			},
+			"authentication": "MSI",
+			"resourceId": ""
+		}
+	}
+}
