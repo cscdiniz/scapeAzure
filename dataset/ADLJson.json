@@ -5,11 +5,28 @@
 			"referenceName": "adldaprod",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"Object": {
+				"type": "string"
+			},
+			"FileFormat": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "Json",
 		"typeProperties": {
 			"location": {
-				"type": "AzureBlobFSLocation"
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', dataset().Object, '.', dataset().FileFormat)",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().Object",
+					"type": "Expression"
+				},
+				"fileSystem": "Raw"
 			}
 		},
 		"schema": {}
