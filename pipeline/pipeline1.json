@@ -143,11 +143,11 @@
 												"type": "DatasetReference",
 												"parameters": {
 													"url": {
-														"value": "@activity('Lookup1').output.SourceUrl",
+														"value": "@string(item().SourceUrl)",
 														"type": "Expression"
 													},
 													"parameter": {
-														"value": "@activity('Lookup1').output.SourceParameter",
+														"value": "@string(item().SourceParameter)",
 														"type": "Expression"
 													}
 												}
@@ -159,11 +159,11 @@
 												"type": "DatasetReference",
 												"parameters": {
 													"Object": {
-														"value": "@activity('Lookup1').output.SinkFileName",
+														"value": "@string(item().SinkFileName)",
 														"type": "Expression"
 													},
 													"FileFormat": {
-														"value": "@activity('Lookup1').output.SinkFileFormat",
+														"value": "@string(item().SinkFileFormat)",
 														"type": "Expression"
 													}
 												}
