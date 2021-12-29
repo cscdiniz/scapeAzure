@@ -27,7 +27,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@item().SourceLocation = 'api'\n",
+									"value": "@equals(item().SourceLocation, 'api')",
 									"type": "Expression"
 								},
 								"ifTrueActivities": [
