@@ -15,6 +15,12 @@
 		},
 		"annotations": [],
 		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@concat('https://scapeau.starrezhousing.com/StarRezREST/services',dataset().url,dataset().parameter)",
+				"type": "Expression"
+			}
+		},
 		"schema": []
 	}
 }
