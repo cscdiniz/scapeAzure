@@ -3,11 +3,11 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "ForEach1",
+				"name": "For Each Active ETL",
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Lookup1",
+						"activity": "ETL Table",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -21,7 +21,7 @@
 					},
 					"activities": [
 						{
-							"name": "If Condition1",
+							"name": "Source Format Condition",
 							"type": "IfCondition",
 							"dependsOn": [],
 							"userProperties": [],
@@ -32,7 +32,7 @@
 								},
 								"ifTrueActivities": [
 									{
-										"name": "Copy data1_copy2_copy1",
+										"name": "Copy API to ADL",
 										"type": "Copy",
 										"dependsOn": [],
 										"policy": {
@@ -104,7 +104,7 @@
 				}
 			},
 			{
-				"name": "Lookup1",
+				"name": "ETL Table",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
