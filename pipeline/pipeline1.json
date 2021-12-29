@@ -35,6 +35,10 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata1').output",
+						"type": "Expression"
+					},
 					"activities": [
 						{
 							"name": "Switch1_copy1",
