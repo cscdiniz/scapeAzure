@@ -159,11 +159,11 @@
 												"type": "DatasetReference",
 												"parameters": {
 													"Object": {
-														"value": "@activity('Get Metadata1').output.Object",
+														"value": "@activity('Lookup1').output.Object",
 														"type": "Expression"
 													},
 													"FileFormat": {
-														"value": "@activity('Get Metadata1').output.SinkFileFormat",
+														"value": "@activity('Lookup1').output.SinkFileFormat",
 														"type": "Expression"
 													}
 												}
