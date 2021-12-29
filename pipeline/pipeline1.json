@@ -89,7 +89,7 @@
 														"type": "DatasetReference",
 														"parameters": {
 															"Object": {
-																"value": "item().Object",
+																"value": "item().SinkFileName",
 																"type": "Expression"
 															},
 															"FileFormat": {
