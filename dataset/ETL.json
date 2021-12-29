@@ -1,0 +1,62 @@
+{
+	"name": "ETL",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SupportDatabase",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "ETLId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Object",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SourceLocation",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SourceBaseUrl",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SourceRequestType",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SourceUrl",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SourceParameter",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SinkLocation",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SinkFileFormat",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SinkFileName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SinkFilePath",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "CurrentETL"
+		}
+	}
+}
