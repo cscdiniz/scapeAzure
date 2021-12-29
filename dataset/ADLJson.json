@@ -1,0 +1,17 @@
+{
+	"name": "ADLJson",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adldaprod",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation"
+			}
+		},
+		"schema": {}
+	}
+}
