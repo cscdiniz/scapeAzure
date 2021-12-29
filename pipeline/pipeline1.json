@@ -159,7 +159,7 @@
 												"type": "DatasetReference",
 												"parameters": {
 													"Object": {
-														"value": "@activity('Lookup1').output.Object",
+														"value": "@activity('Lookup1').output.SinkFileName",
 														"type": "Expression"
 													},
 													"FileFormat": {
