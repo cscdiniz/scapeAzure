@@ -1,0 +1,20 @@
+{
+	"name": "StarRez",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "starrezhousingAPI",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"url": {
+				"type": "string"
+			},
+			"parameter": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	}
+}
