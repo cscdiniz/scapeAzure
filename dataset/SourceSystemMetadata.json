@@ -1,0 +1,42 @@
+{
+	"name": "SourceSystemMetadata",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SupportDatabase",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "SourceSystemId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "TableName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ColumnName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "DataType",
+				"type": "nvarchar"
+			},
+			{
+				"name": "IsRequired",
+				"type": "bit"
+			},
+			{
+				"name": "Size",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "SourceSystemMetadata"
+		}
+	}
+}
