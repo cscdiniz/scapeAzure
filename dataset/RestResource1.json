@@ -8,7 +8,7 @@
 		"annotations": [],
 		"type": "RestResource",
 		"typeProperties": {
-			"relativeUrl": "/databaseinfo/columnlist/BookingReason.json"
+			"relativeUrl": "https://scapeau.starrezhousing.com/StarRezREST/services/databaseinfo/columnlist/BookingReason.json"
 		},
 		"schema": []
 	}
