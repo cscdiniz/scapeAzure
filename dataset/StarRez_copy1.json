@@ -14,7 +14,7 @@
 		"type": "RestResource",
 		"typeProperties": {
 			"relativeUrl": {
-				"value": "@concat('https://scapeau.starrezhousing.com/StarRezREST/services',dataset().url,dataset().parameter)",
+				"value": "@concat('https://scapeau.starrezhousing.com/StarRezREST/services',dataset().url)",
 				"type": "Expression"
 			}
 		},
