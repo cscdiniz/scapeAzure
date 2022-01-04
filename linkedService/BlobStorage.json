@@ -10,7 +10,7 @@
 					"referenceName": "Keys",
 					"type": "LinkedServiceReference"
 				},
-				"secretName": "kv-adldaprod"
+				"secretName": "kv-saprod"
 			}
 		}
 	}
