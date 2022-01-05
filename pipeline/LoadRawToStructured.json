@@ -53,14 +53,31 @@
 						"referenceName": "Raw",
 						"type": "DatasetReference",
 						"parameters": {
-							"File": "entry/2022/01/05"
+							"File": {
+								"value": "@pipeline().parameters.File",
+								"type": "Expression"
+							},
+							"Directory": {
+								"value": "@pipeline().parameters.Directory",
+								"type": "Expression"
+							}
 						}
 					}
 				],
 				"outputs": [
 					{
 						"referenceName": "ADLStructured",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"File": {
+								"value": "@pipeline().parameters.File",
+								"type": "Expression"
+							},
+							"Directory": {
+								"value": "@pipeline().parameters.Directory",
+								"type": "Expression"
+							}
+						}
 					}
 				]
 			},
@@ -83,7 +100,10 @@
 						"storedProcedureParameters": {
 							"table_name": {
 								"type": "String",
-								"value": "Entry"
+								"value": {
+									"value": "@pipeline().parameters.Object",
+									"type": "Expression"
+								}
 							}
 						},
 						"queryTimeout": "02:00:00",
