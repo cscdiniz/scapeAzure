@@ -132,7 +132,7 @@
 		"parameters": {
 			"ETLId": {
 				"type": "int",
-				"defaultValue": 2
+				"defaultValue": 1
 			}
 		},
 		"annotations": []
