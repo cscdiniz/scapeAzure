@@ -18,7 +18,7 @@
 					"name": "Select1"
 				}
 			],
-			"script": "parameters{\n\tFilePath as string ('entry/2022/01/05/entry_1101.json')\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tdocumentForm: 'arrayOfDocuments') ~> source1\nsource1 select(skipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1"
+			"script": "parameters{\n\tFilePath as string ('entry/2022/01/05/entry_1101.json')\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tdocumentForm: 'documentPerLine',\n\twildcardPaths:['entry/2022/01/05/entry_1201.json']) ~> source1\nsource1 select(skipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1"
 		}
 	}
 }
