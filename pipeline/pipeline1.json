@@ -16,71 +16,24 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "XmlSource",
+						"type": "JsonSource",
 						"storeSettings": {
-							"type": "AzureBlobStorageReadSettings",
+							"type": "AzureBlobFSReadSettings",
 							"recursive": true,
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
-							"type": "XmlReadSettings",
-							"validationMode": "none",
-							"detectDataType": false,
-							"namespaces": false
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "Raw",
+						"type": "DatasetReference",
+						"parameters": {
+							"FilePath": "entry/2022/01/05"
 						}
 					},
 					"firstRowOnly": false
-				}
-			},
-			{
-				"name": "ForEach1",
-				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "Lookup1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"activities": [
-						{
-							"name": "Lookup2",
-							"type": "Lookup",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "JsonSource",
-									"storeSettings": {
-										"type": "AzureBlobFSReadSettings",
-										"recursive": true,
-										"enablePartitionDiscovery": false
-									},
-									"formatSettings": {
-										"type": "JsonReadSettings"
-									}
-								},
-								"dataset": {
-									"referenceName": "Raw",
-									"type": "DatasetReference",
-									"parameters": {
-										"FilePath": "entry/2022/01/05"
-									}
-								},
-								"firstRowOnly": false
-							}
-						}
-					]
 				}
 			}
 		],
