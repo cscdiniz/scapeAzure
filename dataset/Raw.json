@@ -19,8 +19,14 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "entry_1201.json",
-				"folderPath": "entry/2022/01/05",
+				"fileName": {
+					"value": "@dataset().File",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().Directory",
+					"type": "Expression"
+				},
 				"fileSystem": "raw"
 			},
 			"encodingName": "US-ASCII"
