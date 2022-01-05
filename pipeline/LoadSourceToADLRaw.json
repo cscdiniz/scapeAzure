@@ -138,6 +138,9 @@
 			"ETLId": {
 				"type": "string",
 				"defaultValue": "1"
+			},
+			"LastRun": {
+				"type": "string"
 			}
 		},
 		"annotations": []
