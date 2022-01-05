@@ -44,7 +44,7 @@
 					},
 					"enableStaging": false,
 					"translator": {
-						"value": "@json(activity('Lookup1').output.json_output)",
+						"value": "@json(activity('Lookup1').output.firstRow.json_output)",
 						"type": "Expression"
 					}
 				},
@@ -93,7 +93,7 @@
 						"referenceName": "GetSetMetadata",
 						"type": "DatasetReference"
 					},
-					"firstRowOnly": false
+					"firstRowOnly": true
 				}
 			}
 		],
