@@ -119,7 +119,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "@concat('Select * From dbo,ETL Where ETLId = ', pipeline().parameters.ETLId)",
+							"value": "@concat('Select * From dbo.ETL Where ETLId = ', pipeline().parameters.ETLId)",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
