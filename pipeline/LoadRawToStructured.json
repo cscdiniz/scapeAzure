@@ -53,7 +53,7 @@
 						"referenceName": "Raw",
 						"type": "DatasetReference",
 						"parameters": {
-							"FilePath": "entry/2022/01/05"
+							"File": "entry/2022/01/05"
 						}
 					}
 				],
@@ -97,6 +97,14 @@
 				}
 			}
 		],
+		"parameters": {
+			"Directory": {
+				"type": "string"
+			},
+			"File": {
+				"type": "string"
+			}
+		},
 		"annotations": []
 	}
 }
