@@ -118,6 +118,10 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "@concat('Select * From dbo,ETL Where ETLId = ', pipeline().parameters.ETLId)",
+							"type": "Expression"
+						},
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -131,8 +135,8 @@
 		],
 		"parameters": {
 			"ETLId": {
-				"type": "int",
-				"defaultValue": 1
+				"type": "string",
+				"defaultValue": "1"
 			}
 		},
 		"annotations": []
