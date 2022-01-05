@@ -42,7 +42,11 @@
 							"type": "ParquetWriteSettings"
 						}
 					},
-					"enableStaging": false
+					"enableStaging": false,
+					"translator": {
+						"value": "@json(activity('Lookup1').output.firstRow.json_output)",
+						"type": "Expression"
+					}
 				},
 				"inputs": [
 					{
