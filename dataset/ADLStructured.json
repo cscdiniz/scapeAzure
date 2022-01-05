@@ -1,0 +1,19 @@
+{
+	"name": "ADLStructured",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adldaprod",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "structured"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
