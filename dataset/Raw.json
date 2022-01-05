@@ -7,7 +7,8 @@
 		},
 		"parameters": {
 			"FilePath": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "entry/2022/01/05"
 			}
 		},
 		"annotations": [],
