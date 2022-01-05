@@ -103,6 +103,9 @@
 			},
 			"File": {
 				"type": "string"
+			},
+			"Object": {
+				"type": "string"
 			}
 		},
 		"annotations": []
