@@ -15,10 +15,11 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "entry_1101.json",
+				"fileName": "entry_1201.json",
 				"folderPath": "entry/2022/01/05",
 				"fileSystem": "raw"
-			}
+			},
+			"encodingName": "UTF-8 without BOM"
 		},
 		"schema": {}
 	}
