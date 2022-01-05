@@ -6,9 +6,12 @@
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
-			"FilePath": {
+			"File": {
 				"type": "string",
 				"defaultValue": "entry/2022/01/05"
+			},
+			"Directory": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
