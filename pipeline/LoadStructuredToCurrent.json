@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Get Metadata1",
+				"name": "Data Lake exist",
 				"type": "GetMetadata",
 				"dependsOn": [],
 				"policy": {
@@ -32,11 +32,11 @@
 				}
 			},
 			{
-				"name": "If Condition1",
+				"name": "Is initial load",
 				"type": "IfCondition",
 				"dependsOn": [
 					{
-						"activity": "Get Metadata1",
+						"activity": "Data Lake exist",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -97,7 +97,7 @@
 					],
 					"ifTrueActivities": [
 						{
-							"name": "Data flow1",
+							"name": "Initial Load",
 							"type": "ExecuteDataFlow",
 							"dependsOn": [],
 							"policy": {
