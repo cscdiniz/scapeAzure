@@ -27,6 +27,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					}
 				}
@@ -45,7 +46,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@equals(activity('Data Lake exist').output.value, 'false')",
+						"value": "@equals(activity('Data Lake exist').output.exists, 'False')",
 						"type": "Expression"
 					},
 					"ifFalseActivities": [
