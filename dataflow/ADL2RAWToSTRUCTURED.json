@@ -18,7 +18,7 @@
 					"name": "DerivedColumn1"
 				}
 			],
-			"script": "parameters{\n\tFile as string ('entry_1201.json')\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet',\n\twildcardPaths:['entry_1201.json']) ~> source1\nsource1 derive() ~> DerivedColumn1"
+			"script": "parameters{\n\tFile as string ('entry_1201.json')\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet',\n\twildcardPaths:['entry_1201.parquet']) ~> source1\nsource1 derive() ~> DerivedColumn1"
 		}
 	}
 }
