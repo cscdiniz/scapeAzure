@@ -190,6 +190,12 @@
 			"File": {
 				"type": "string",
 				"defaultValue": "entry_1201.parquet"
+			},
+			"ExecutionId": {
+				"type": "string"
+			},
+			"ExecutionDate": {
+				"type": "string"
 			}
 		},
 		"annotations": []
