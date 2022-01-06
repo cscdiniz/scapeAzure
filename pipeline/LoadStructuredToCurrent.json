@@ -30,12 +30,75 @@
 						"enablePartitionDiscovery": false
 					}
 				}
+			},
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(activity('Get Metadata1').output, 'false')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Data flow1",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "1.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DF_ADL2STRUCTUREDToCURRENT_InitialLoad",
+									"type": "DataFlowReference",
+									"datasetParameters": {
+										"Structured File": {
+											"File": {
+												"value": "@pipeline().parameters.File",
+												"type": "Expression"
+											},
+											"Directory": {
+												"value": "@pipeline().parameters.Directory",
+												"type": "Expression"
+											}
+										},
+										"ADLStructured": {
+											"Directory": "entry"
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						}
+					]
+				}
 			}
 		],
 		"parameters": {
 			"Directory": {
 				"type": "string",
 				"defaultValue": "entry"
+			},
+			"File": {
+				"type": "string"
 			}
 		},
 		"annotations": []
