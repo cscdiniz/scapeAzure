@@ -135,7 +135,8 @@
 				"defaultValue": "entry"
 			},
 			"File": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "entry_1201.parquet"
 			}
 		},
 		"annotations": []
