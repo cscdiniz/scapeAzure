@@ -45,7 +45,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@equals(activity('Data Lake exist').output, 'false')",
+						"value": "@equals(activity('Data Lake exist').output.exist, 'false')",
 						"type": "Expression"
 					},
 					"ifFalseActivities": [
@@ -94,7 +94,7 @@
 												"type": "Expression"
 											}
 										},
-										"Current": {
+										"CurrentSink": {
 											"Directory": {
 												"value": "@pipeline().parameters.Directory",
 												"type": "Expression"
