@@ -50,7 +50,7 @@
 					},
 					"ifFalseActivities": [
 						{
-							"name": "Data flow2",
+							"name": "Incremental Load",
 							"type": "ExecuteDataFlow",
 							"dependsOn": [],
 							"policy": {
