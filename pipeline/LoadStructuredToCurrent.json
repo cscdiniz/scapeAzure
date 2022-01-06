@@ -95,6 +95,12 @@
 												"type": "Expression"
 											}
 										},
+										"CurrentLookup": {
+											"Directory": {
+												"value": "@pipeline().parameters.Directory",
+												"type": "Expression"
+											}
+										},
 										"CurrentSink": {
 											"Directory": {
 												"value": "@pipeline().parameters.Directory",
