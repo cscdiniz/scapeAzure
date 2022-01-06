@@ -87,6 +87,24 @@
 								"dataflow": {
 									"referenceName": "DF_ADL2STRUCTUREDToCURRENT_InitialLoad",
 									"type": "DataFlowReference",
+									"parameters": {
+										"File": {
+											"value": "'@{pipeline().parameters.File}'",
+											"type": "Expression"
+										},
+										"Directory": {
+											"value": "'@{pipeline().parameters.Directory}'",
+											"type": "Expression"
+										},
+										"ExecutionDate": {
+											"value": "@pipeline().TriggerTime",
+											"type": "Expression"
+										},
+										"RunId": {
+											"value": "'@{pipeline()?.TriggeredByPipelineRunId}'",
+											"type": "Expression"
+										}
+									},
 									"datasetParameters": {
 										"StructuredFile": {
 											"File": {
