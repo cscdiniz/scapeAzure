@@ -79,7 +79,7 @@
 											"type": "Expression"
 										},
 										"RunId": {
-											"value": "'@{pipeline()?.TriggeredByPipelineRunId}'",
+											"value": "'@{pipeline().RunId}'",
 											"type": "Expression"
 										}
 									},
