@@ -62,31 +62,6 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"dataflow": {
-									"referenceName": "DF_ADL2STRUCTUREDToCURRENT_CDC",
-									"type": "DataFlowReference",
-									"parameters": {
-										"File": "'entry_1201.json'"
-									},
-									"datasetParameters": {
-										"Structured File": {
-											"File": {
-												"value": "@pipeline().parameters.File",
-												"type": "Expression"
-											},
-											"Directory": {
-												"value": "@pipeline().parameters.Directory",
-												"type": "Expression"
-											}
-										},
-										"ADLStructured": {
-											"Directory": {
-												"value": "@pipeline().parameters.Directory",
-												"type": "Expression"
-											}
-										}
-									}
-								},
 								"compute": {
 									"coreCount": 8,
 									"computeType": "General"
