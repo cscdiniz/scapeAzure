@@ -1,0 +1,35 @@
+{
+	"name": "ADLCurrent",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "adldaprod",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"File": {
+				"type": "string"
+			},
+			"Directory": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().File",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().Directory",
+					"type": "Expression"
+				},
+				"fileSystem": "current"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
