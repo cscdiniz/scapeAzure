@@ -115,6 +115,12 @@
 												"value": "@pipeline().parameters.Directory",
 												"type": "Expression"
 											}
+										},
+										"Current": {
+											"Directory": {
+												"value": "@pipeline().parameters.Directory",
+												"type": "Expression"
+											}
 										}
 									}
 								},
