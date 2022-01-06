@@ -45,7 +45,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@equals(activity('Get Metadata1').output, 'false')",
+						"value": "@equals(activity('Data Lake exist').output, 'false')",
 						"type": "Expression"
 					},
 					"ifFalseActivities": [
