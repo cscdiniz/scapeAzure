@@ -113,7 +113,7 @@
 									"referenceName": "DF_ADL2STRUCTUREDToCURRENT_InitialLoad",
 									"type": "DataFlowReference",
 									"datasetParameters": {
-										"Structured File": {
+										"StructuredFile": {
 											"File": {
 												"value": "@pipeline().parameters.File",
 												"type": "Expression"
@@ -122,9 +122,6 @@
 												"value": "@pipeline().parameters.Directory",
 												"type": "Expression"
 											}
-										},
-										"ADLStructured": {
-											"Directory": "entry"
 										}
 									}
 								},
