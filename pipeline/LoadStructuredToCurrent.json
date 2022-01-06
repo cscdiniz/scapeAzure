@@ -45,7 +45,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@equals(activity('Data Lake exist').output.exists, 'false')",
+						"value": "@equals(activity('Data Lake exist').output.value, 'false')",
 						"type": "Expression"
 					},
 					"ifFalseActivities": [
