@@ -1,5 +1,5 @@
 {
-	"name": "ADL2RAWToSTRUCTURED",
+	"name": "DF_ADL2STRUCTUREDToCURRENT_CDC",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -9,16 +9,29 @@
 						"referenceName": "ADLStructured",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "Structured File"
+				},
+				{
+					"dataset": {
+						"referenceName": "ADLCurrent_Directory",
+						"type": "DatasetReference"
+					},
+					"name": "ADLStructured"
 				}
 			],
 			"sinks": [],
 			"transformations": [
 				{
-					"name": "DerivedColumn1"
+					"name": "HASH"
+				},
+				{
+					"name": "Exists1"
+				},
+				{
+					"name": "ConditionalSplit1"
 				}
 			],
-			"script": "parameters{\n\tFile as string ('entry_1201.json')\n}\nsource(output(\n\t\tEntryID as long,\n\t\tCategoryID as long,\n\t\tEventID as long,\n\t\tContactID as long,\n\t\tEntryStatusEnum as long,\n\t\tAddressTypeID as long,\n\t\tBookingID as long,\n\t\tEntryApplicationID as long,\n\t\tPinNumber as long,\n\t\tPortalEmail as string,\n\t\tPortalAuthProviderUserID as string,\n\t\tConferenceEmail as string,\n\t\tNameLast as string,\n\t\tNameFirst as string,\n\t\tNameTitle as string,\n\t\tNamePreferred as string,\n\t\tNameWeb as string,\n\t\tNameOther as string,\n\t\tNameInitials as string,\n\t\tNameSharer as string,\n\t\tGenderEnum as long,\n\t\tBirth_GenderEnum as long,\n\t\tDirectoryFlagPrivacy as boolean,\n\t\tDOB as string,\n\t\tPosition as string,\n\t\tID1 as string,\n\t\tID2 as string,\n\t\tID3 as string,\n\t\tID4 as long,\n\t\tID5 as long,\n\t\tPhoneProcessToAccount as boolean,\n\t\tPhoneChargeTypeID as long,\n\t\tPhoneDisableValue as double,\n\t\tPhoneRestrictValue as double,\n\t\tPhoneControlEnum as long,\n\t\tTaxExemptionEnum as long,\n\t\tLastCheckInOutDate as string,\n\t\tPrevious_EntryStatusEnum as long,\n\t\tTesting as boolean,\n\t\tUser_SecurityUserID as long,\n\t\tSecurityUserID as long,\n\t\tCreatedBy_SecurityUserID as long,\n\t\tDateCreated as string,\n\t\tDateModified as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet',\n\twildcardPaths:['entry_1201.parquet']) ~> source1\nsource1 derive(HASH = md5(columns())) ~> DerivedColumn1"
+			"script": "parameters{\n\tFile as string ('entry_1201.json')\n}\nsource(output(\n\t\tEntryID as long,\n\t\tCategoryID as long,\n\t\tEventID as long,\n\t\tContactID as long,\n\t\tEntryStatusEnum as long,\n\t\tAddressTypeID as long,\n\t\tBookingID as long,\n\t\tEntryApplicationID as long,\n\t\tPinNumber as long,\n\t\tPortalEmail as string,\n\t\tPortalAuthProviderUserID as string,\n\t\tConferenceEmail as string,\n\t\tNameLast as string,\n\t\tNameFirst as string,\n\t\tNameTitle as string,\n\t\tNamePreferred as string,\n\t\tNameWeb as string,\n\t\tNameOther as string,\n\t\tNameInitials as string,\n\t\tNameSharer as string,\n\t\tGenderEnum as long,\n\t\tBirth_GenderEnum as long,\n\t\tDirectoryFlagPrivacy as boolean,\n\t\tDOB as string,\n\t\tPosition as string,\n\t\tID1 as string,\n\t\tID2 as string,\n\t\tID3 as string,\n\t\tID4 as long,\n\t\tID5 as long,\n\t\tPhoneProcessToAccount as boolean,\n\t\tPhoneChargeTypeID as long,\n\t\tPhoneDisableValue as double,\n\t\tPhoneRestrictValue as double,\n\t\tPhoneControlEnum as long,\n\t\tTaxExemptionEnum as long,\n\t\tLastCheckInOutDate as string,\n\t\tPrevious_EntryStatusEnum as long,\n\t\tTesting as boolean,\n\t\tUser_SecurityUserID as long,\n\t\tSecurityUserID as long,\n\t\tCreatedBy_SecurityUserID as long,\n\t\tDateCreated as string,\n\t\tDateModified as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet',\n\twildcardPaths:['entry_1201.parquet']) ~> Structured File\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> ADLStructured\nConditionalSplit1 derive(HASH = md5(columns())) ~> HASH\nHASH, Structured File exists(HASH == ERROR_FUNCTION(''),\n\tnegate:false,\n\tbroadcast: 'auto')~> Exists1\nStructured File split(ERROR_FUNCTION(''),\n\tdisjoint: false) ~> ConditionalSplit1@(, )"
 		}
 	}
 }

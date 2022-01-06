@@ -48,6 +48,53 @@
 						"value": "@equals(activity('Get Metadata1').output, 'false')",
 						"type": "Expression"
 					},
+					"ifFalseActivities": [
+						{
+							"name": "Data flow2",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "1.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DF_ADL2STRUCTUREDToCURRENT_CDC",
+									"type": "DataFlowReference",
+									"parameters": {
+										"File": "'entry_1201.json'"
+									},
+									"datasetParameters": {
+										"Structured File": {
+											"File": {
+												"value": "@pipeline().parameters.File",
+												"type": "Expression"
+											},
+											"Directory": {
+												"value": "@pipeline().parameters.Directory",
+												"type": "Expression"
+											}
+										},
+										"ADLStructured": {
+											"Directory": {
+												"value": "@pipeline().parameters.Directory",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						}
+					],
 					"ifTrueActivities": [
 						{
 							"name": "Data flow1",
