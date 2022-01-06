@@ -1,6 +1,32 @@
 {
 	"name": "LoadStructuredToCurrent",
 	"properties": {
+		"activities": [
+			{
+				"name": "Validation1",
+				"type": "Validation",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ADLCurrent_Directory",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": "entry"
+						}
+					},
+					"timeout": "7.00:00:00",
+					"sleep": 10,
+					"childItems": true
+				}
+			}
+		],
+		"parameters": {
+			"Directory": {
+				"type": "string",
+				"defaultValue": "entry"
+			}
+		},
 		"annotations": []
 	}
 }
