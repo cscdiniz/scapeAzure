@@ -206,7 +206,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "@concat('Select * From dbo.CurrentETL Where ETLId = ', pipeline().parameters.ETLId)",
+							"value": "@concat('Select * From dbo.CurrentETL Where ETLId = ', pipeline().parameters.ETLId, ' and IsActive=1')",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
