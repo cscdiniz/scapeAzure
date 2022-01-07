@@ -57,7 +57,7 @@
 							}
 						},
 						{
-							"name": "Copy API to ADL",
+							"name": "Copy API to Raw",
 							"type": "Copy",
 							"dependsOn": [
 								{
@@ -135,7 +135,7 @@
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
-									"activity": "Copy API to ADL",
+									"activity": "Copy API to Raw",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -185,6 +185,48 @@
 							"linkedServiceName": {
 								"referenceName": "SupportDatabase",
 								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "GetColumnMapping",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "UpdateCurrentExecutionLog",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderStoredProcedureName": "[dbo].[sp_getColumnMapping]",
+									"storedProcedureParameters": {
+										"table_name": {
+											"type": "String",
+											"value": {
+												"value": "@string(item().Object)",
+												"type": "Expression"
+											}
+										}
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "GetSetMetadata",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": true
 							}
 						}
 					]
