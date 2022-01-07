@@ -91,7 +91,7 @@
 											"type": "Expression"
 										},
 										"parameter": {
-											"value": "@if(bool(item().IsIncrementalLoad), concat(string(item().SourceParameter), ' ', string(item().IncrementalLoadCondition), '',activity('Last Execution Date').output.LastExecution['yyyy-MM-dd HH:mm:ss'], ''), string(item().SourceParameter))",
+											"value": "@if(and(bool(item().IsIncrementalLoad), not(equals(coalesce(string(activity('Last Execution Date').output.LastExecution), '-1'), '-1'))), concat(string(item().SourceParameter), ' ', string(item().IncrementalLoadCondition), '',activity('Last Execution Date').output.LastExecution['yyyy-MM-dd HH:mm:ss'], ''), string(item().SourceParameter))",
 											"type": "Expression"
 										}
 									}
