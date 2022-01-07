@@ -156,6 +156,11 @@
 				"type": "string"
 			}
 		},
+		"variables": {
+			"RawFilePath": {
+				"type": "String"
+			}
+		},
 		"annotations": []
 	}
 }
