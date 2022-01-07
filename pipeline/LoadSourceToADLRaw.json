@@ -359,6 +359,9 @@
 		"variables": {
 			"RawFilePath": {
 				"type": "String"
+			},
+			"StructuredFilePath": {
+				"type": "String"
 			}
 		},
 		"annotations": []
