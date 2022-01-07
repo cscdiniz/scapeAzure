@@ -580,7 +580,7 @@
 							}
 						},
 						{
-							"name": "UpdateCurrentExecutionLog_Structured_copy1",
+							"name": "UpdateCurrentExecutionLog_Current",
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
