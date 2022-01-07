@@ -472,23 +472,23 @@
 												"datasetParameters": {
 													"StructuredFile": {
 														"File": {
-															"value": "@pipeline().parameters.File",
+															"value": "@variables('StructuredFilePath')",
 															"type": "Expression"
 														},
 														"Directory": {
-															"value": "@pipeline().parameters.Directory",
+															"value": "@variables('Object')",
 															"type": "Expression"
 														}
 													},
 													"CurrentLookup": {
 														"Directory": {
-															"value": "@pipeline().parameters.Directory",
+															"value": "@variables('Object')",
 															"type": "Expression"
 														}
 													},
 													"CurrentSink": {
 														"Directory": {
-															"value": "@pipeline().parameters.Directory",
+															"value": "@variables('Object')",
 															"type": "Expression"
 														}
 													}
