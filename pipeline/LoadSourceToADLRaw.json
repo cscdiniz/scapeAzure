@@ -23,7 +23,14 @@
 						{
 							"name": "RawFilePathName",
 							"type": "SetVariable",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "ObjectName",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"userProperties": [],
 							"typeProperties": {
 								"variableName": "RawFilePath",
@@ -518,7 +525,7 @@
 														"type": "Expression"
 													},
 													"Directory": {
-														"value": "'@{pipeline().parameters.Directory}'",
+														"value": "'@{variables('Object')}'",
 														"type": "Expression"
 													},
 													"ExecutionDate": {
@@ -537,13 +544,13 @@
 															"type": "Expression"
 														},
 														"Directory": {
-															"value": "@pipeline().parameters.Directory",
+															"value": "@variables('Object')",
 															"type": "Expression"
 														}
 													},
 													"Current": {
 														"Directory": {
-															"value": "@pipeline().parameters.Directory",
+															"value": "@variables('Object')",
 															"type": "Expression"
 														}
 													}
@@ -557,6 +564,19 @@
 										}
 									}
 								]
+							}
+						},
+						{
+							"name": "ObjectName",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "RawFilePath",
+								"value": {
+									"value": "@item().Object",
+									"type": "Expression"
+								}
 							}
 						}
 					]
