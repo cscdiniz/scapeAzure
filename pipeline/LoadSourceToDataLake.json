@@ -646,7 +646,14 @@
 			{
 				"name": "ETL Table",
 				"type": "Lookup",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Last Execution Date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -675,6 +682,42 @@
 			{
 				"name": "Last Execution Date",
 				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Get Original Parameters",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "@concat('SELECT  [LastExecution] FROM [procfwk].[GetMaxExecutionLogDateTime] WHERE  [StageId] = ', string(pipeline().parameters.stageId), ' AND [PipelineId] = ', string(pipeline().parameters.pipelineId), ' and [PipelineParamsUsed] = ', activity('Get Original Parameters').output.PipelineParamsUsed)",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ETL",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Get Original Parameters",
+				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "7.00:00:00",
@@ -688,7 +731,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "@concat('SELECT  [LastExecution] FROM [procfwk].[GetMaxExecutionLogDateTime] WHERE  [StageId] = ', string(pipeline().parameters.stageId), ' AND [PipelineId] = ', string(pipeline().parameters.pipelineId), ' and [PipelineParamsUsed] = ', '')",
+							"value": "@concat('SELECT  [LastExecution] FROM [procfwk].[GetCurrentExecution] WHERE  [PipelineId] = ', string(pipeline().parameters.pipelineId))",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
