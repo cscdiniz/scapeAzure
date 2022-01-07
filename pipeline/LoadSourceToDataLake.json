@@ -91,7 +91,7 @@
 											"type": "Expression"
 										},
 										"parameter": {
-											"value": "@if(bool(item().IsIncrementalLoad), concat(string(item().SourceParameter), ' ', string(item().IncrementalLoadCondition), string(activity('Last Execution Date').output.LastExecution)), string(item().SourceParameter))",
+											"value": "@if(bool(item().IsIncrementalLoad), concat(string(item().SourceParameter), ' ', string(item().IncrementalLoadCondition), '',activity('Last Execution Date').output.LastExecution['yyyy-MM-dd HH:mm:ss'], ''), string(item().SourceParameter))",
 											"type": "Expression"
 										}
 									}
@@ -670,7 +670,7 @@
 								"source": {
 									"type": "AzureSqlSource",
 									"sqlReaderQuery": {
-										"value": "@concat('SELECT  [LastExecution] FROM [procfwk].[GetMaxExecutionLogDateTime] WHERE  [StageId] = ', string(pipeline().parameters.stageId), ' AND [PipelineId] = ', string(pipeline().parameters.pipelineId), ' and [PipelineParamsUsed] = ', activity('Get Original Parameters').output.PipelineParamsUsed)",
+										"value": "@concat('SELECT  [LastExecution] FROM [procfwk].[GetMaxExecutionLogDateTime] WHERE  [StageId] = ', string(pipeline().parameters.stageId), ' AND [PipelineId] = ', string(pipeline().parameters.pipelineId), ' and [PipelineParamsUsed] = ', '',activity('Get Original Parameters').output.PipelineParamsUsed, '')",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
