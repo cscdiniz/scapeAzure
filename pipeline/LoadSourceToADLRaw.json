@@ -613,6 +613,9 @@
 			},
 			"StructuredFilePath": {
 				"type": "String"
+			},
+			"Object": {
+				"type": "String"
 			}
 		},
 		"annotations": []
