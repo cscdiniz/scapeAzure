@@ -21,7 +21,7 @@
 					},
 					"activities": [
 						{
-							"name": "FilePathName",
+							"name": "RawFilePathName",
 							"type": "SetVariable",
 							"dependsOn": [],
 							"userProperties": [],
@@ -34,34 +34,11 @@
 							}
 						},
 						{
-							"name": "API",
-							"type": "Filter",
-							"dependsOn": [
-								{
-									"activity": "FilePathName",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"userProperties": [],
-							"typeProperties": {
-								"items": {
-									"value": "item().SourceLocation",
-									"type": "Expression"
-								},
-								"condition": {
-									"value": "'api'",
-									"type": "Expression"
-								}
-							}
-						},
-						{
 							"name": "Copy API to Raw",
 							"type": "Copy",
 							"dependsOn": [
 								{
-									"activity": "API",
+									"activity": "StructuredFilePathName",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -281,7 +258,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"File": {
-											"value": "@pipeline().parameters.File",
+											"value": "@variables('RawFilePath')",
 											"type": "Expression"
 										},
 										"Directory": {
@@ -297,16 +274,36 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"File": {
-											"value": "@pipeline().parameters.File",
+											"value": "@variables('StructuredFilePath')",
 											"type": "Expression"
 										},
 										"Directory": {
-											"value": "@pipeline().parameters.Directory",
+											"value": "@item().Object",
 											"type": "Expression"
 										}
 									}
 								}
 							]
+						},
+						{
+							"name": "StructuredFilePathName",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "RawFilePathName",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "StructuredFilePath",
+								"value": {
+									"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', string(item().SinkFileName),'_', pipeline().parameters.executionId, '.parquet')",
+									"type": "Expression"
+								}
+							}
 						}
 					]
 				}
