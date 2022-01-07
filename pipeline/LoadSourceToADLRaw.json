@@ -99,7 +99,7 @@
 										]
 									},
 									{
-										"name": "Set variable1",
+										"name": "Set RawFileName",
 										"type": "SetVariable",
 										"dependsOn": [
 											{
@@ -109,7 +109,11 @@
 												]
 											}
 										],
-										"userProperties": []
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "RawFilePath",
+											"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', string(item().SinkFileName),'_', formatDateTime(utcnow(),'HHMM'), '.', string(item().SinkFileFormat))"
+										}
 									}
 								]
 							}
