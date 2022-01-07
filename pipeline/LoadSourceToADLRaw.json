@@ -123,7 +123,7 @@
 											"type": "Expression"
 										},
 										"FileName": {
-											"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', string(item().SinkFileName),'_', formatDateTime(utcnow(),'HHMM'), '.', string(item().SinkFileFormat))",
+											"value": "@variables('RawFilePath')",
 											"type": "Expression"
 										}
 									}
