@@ -232,7 +232,7 @@
 				"type": "int"
 			},
 			"ETLId": {
-				"type": "int"
+				"type": "string"
 			}
 		},
 		"variables": {
