@@ -90,8 +90,8 @@
 														"value": "@string(item().SinkFileName)",
 														"type": "Expression"
 													},
-													"FileFormat": {
-														"value": "@string(item().SinkFileFormat)",
+													"FileName": {
+														"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', string(item().SinkFileName),'_', formatDateTime(utcnow(),'HHMM'), '.', string(item().SinkFileFormat))",
 														"type": "Expression"
 													}
 												}
