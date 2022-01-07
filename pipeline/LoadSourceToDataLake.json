@@ -1,5 +1,5 @@
 {
-	"name": "LoadSourceToADLRaw",
+	"name": "LoadSourceToDataLake",
 	"properties": {
 		"activities": [
 			{

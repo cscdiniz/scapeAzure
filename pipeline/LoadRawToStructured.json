@@ -3,11 +3,11 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
+				"name": "CopyRawToStructured",
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "Lookup1",
+						"activity": "GetColumnMapping",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -82,7 +82,7 @@
 				]
 			},
 			{
-				"name": "Lookup1",
+				"name": "GetColumnMapping",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
