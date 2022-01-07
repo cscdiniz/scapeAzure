@@ -228,6 +228,85 @@
 								},
 								"firstRowOnly": true
 							}
+						},
+						{
+							"name": "Copy Raw To Structured",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "GetColumnMapping",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"value": "@json(activity('Lookup1').output.firstRow.json_output)\n",
+									"type": "Expression"
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "Raw",
+									"type": "DatasetReference",
+									"parameters": {
+										"File": {
+											"value": "@pipeline().parameters.File",
+											"type": "Expression"
+										},
+										"Directory": {
+											"value": "@string(item().Object)",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ADLStructured",
+									"type": "DatasetReference",
+									"parameters": {
+										"File": {
+											"value": "@pipeline().parameters.File",
+											"type": "Expression"
+										},
+										"Directory": {
+											"value": "@pipeline().parameters.Directory",
+											"type": "Expression"
+										}
+									}
+								}
+							]
 						}
 					]
 				}
