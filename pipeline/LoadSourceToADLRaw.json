@@ -97,23 +97,6 @@
 												}
 											}
 										]
-									},
-									{
-										"name": "Set RawFileName",
-										"type": "SetVariable",
-										"dependsOn": [
-											{
-												"activity": "Copy API to ADL",
-												"dependencyConditions": [
-													"Succeeded"
-												]
-											}
-										],
-										"userProperties": [],
-										"typeProperties": {
-											"variableName": "RawFilePath",
-											"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', string(item().SinkFileName),'_', formatDateTime(utcnow(),'HHMM'), '.', string(item().SinkFileFormat))"
-										}
 									}
 								]
 							}
