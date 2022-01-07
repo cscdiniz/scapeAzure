@@ -152,12 +152,15 @@
 			}
 		],
 		"parameters": {
-			"ETLId": {
+			"executionId": {
 				"type": "string",
 				"defaultValue": "1"
 			},
-			"LastRun": {
-				"type": "string"
+			"stageId": {
+				"type": "int"
+			},
+			"pipelineId": {
+				"type": "int"
 			}
 		},
 		"variables": {
