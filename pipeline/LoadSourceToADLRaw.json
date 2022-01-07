@@ -23,7 +23,14 @@
 						{
 							"name": "Source Format Condition",
 							"type": "IfCondition",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "FilePathName",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
@@ -99,6 +106,19 @@
 										]
 									}
 								]
+							}
+						},
+						{
+							"name": "FilePathName",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "RawFilePath",
+								"value": {
+									"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', string(item().SinkFileName),'_', pipeline().parameters.executionId, '.', string(item().SinkFileFormat))",
+									"type": "Expression"
+								}
 							}
 						}
 					]
