@@ -129,6 +129,10 @@
 							"typeProperties": {
 								"storedProcedureName": "[procfwk].[SetLogPipelineFilePathName]",
 								"storedProcedureParameters": {
+									"ADLContainer": {
+										"value": "'R'",
+										"type": "String"
+									},
 									"ExecutionId": {
 										"value": {
 											"value": "@pipeline().parameters.executionId",
