@@ -32,6 +32,9 @@
 				"typeProperties": {
 					"functionName": "ExecutePipeline",
 					"method": "POST",
+					"headers": {
+						"x-functions-key": "36lmNL6LBkmUrvHUZcpDvQKjaelckGJ1Etppmjs1WvYADpAtdimAJA=="
+					},
 					"body": {
 						"value": "@concat('\n{\n    \"tenantId\": \"',variables('WorkerCoreDetails')[0].tenantId,'\",\n    \"applicationId\": \"',variables('WorkerCoreDetails')[0].applicationId,'\",\n    \"authenticationKey\": \"',variables('WorkerCoreDetails')[0].authenticationKey,'\",\n    \"subscriptionId\": \"',variables('WorkerCoreDetails')[0].subscriptionId,'\",\n    \"resourceGroupName\": \"',variables('WorkerCoreDetails')[0].resourceGroupName,'\",\n\t\"orchestratorName\": \"',variables('WorkerCoreDetails')[0].orchestratorName,'\",\n    \"orchestratorType\": \"',variables('WorkerCoreDetails')[0].orchestratorType,'\",\n    \"pipelineName\": \"',variables('WorkerCoreDetails')[0].pipelineName,'\"',activity('Get Pipeline Params').output.firstRow.Params,'\n}')",
 						"type": "Expression"
