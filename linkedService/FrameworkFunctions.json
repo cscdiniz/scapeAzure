@@ -1,6 +1,5 @@
 {
 	"name": "FrameworkFunctions",
-	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
 		"description": "Interact with the Azure Functions App used as middle ware when making requests to Worker pipelines. Authentication done at the Function App level.",
 		"annotations": [
@@ -20,5 +19,6 @@
 			"authentication": "MSI",
 			"resourceId": ""
 		}
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
 }
