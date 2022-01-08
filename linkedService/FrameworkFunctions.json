@@ -16,8 +16,7 @@
 				},
 				"secretName": "kv-AFA-P-FWK"
 			},
-			"authentication": "MSI",
-			"resourceId": ""
+			"authentication": "Anonymous"
 		}
 	},
 	"type": "Microsoft.DataFactory/factories/linkedservices"
