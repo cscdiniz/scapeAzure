@@ -4,14 +4,8 @@
 		"annotations": [],
 		"type": "AzureBlobStorage",
 		"typeProperties": {
-			"connectionString": {
-				"type": "AzureKeyVaultSecret",
-				"store": {
-					"referenceName": "Keys",
-					"type": "LinkedServiceReference"
-				},
-				"secretName": "kv-saprod"
-			}
+			"serviceEndpoint": "https://saprodda.blob.core.windows.net",
+			"accountKind": "Storage"
 		}
 	}
 }
