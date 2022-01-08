@@ -27,7 +27,7 @@
 		"parameters": {
 			"BatchName": {
 				"type": "string",
-				"defaultValue": "NotUsed"
+				"defaultValue": "Rent Roll"
 			}
 		},
 		"folder": {
