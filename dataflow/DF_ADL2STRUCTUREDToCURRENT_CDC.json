@@ -22,7 +22,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "ADLCurrent",
+						"referenceName": "ADLCurrent_File",
 						"type": "DatasetReference"
 					},
 					"name": "CurrentSink"
