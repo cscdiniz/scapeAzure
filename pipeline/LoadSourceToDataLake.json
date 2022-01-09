@@ -99,17 +99,10 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "ADLJson",
+									"referenceName": "Raw",
 									"type": "DatasetReference",
 									"parameters": {
-										"Object": {
-											"value": "@string(item().SinkFileName)",
-											"type": "Expression"
-										},
-										"FileName": {
-											"value": "@variables('RawFilePath')",
-											"type": "Expression"
-										}
+										"File": "entry/2022/01/05"
 									}
 								}
 							]
