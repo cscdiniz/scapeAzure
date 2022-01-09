@@ -169,10 +169,7 @@
 										"value": "@string(item().SourceUrl)",
 										"type": "Expression"
 									},
-									"parameter": {
-										"value": "@if(bool(item().IsIncrementalLoad),concat(item().CompleteParameter,'''',if(equals(0,activity('Last Execution Date').output.count),'1900-01-01',activity('Last Execution Date').output.value['yyyy-MM-dd HH:mm:ss']), ''''), item().CompleteParameter)",
-										"type": "Expression"
-									},
+									"parameter": "?q=select * from Entry Where DateModified >='2022-01-10'",
 									"file": {
 										"value": "@variables('RawFilePath')",
 										"type": "Expression"
