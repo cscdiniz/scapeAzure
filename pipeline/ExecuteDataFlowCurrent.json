@@ -103,6 +103,12 @@
 												"value": "@pipeline().parameters.StructuredDirectory",
 												"type": "Expression"
 											}
+										},
+										"CurrentSink": {
+											"Directory": {
+												"value": "@pipeline().parameters.StructuredDirectory",
+												"type": "Expression"
+											}
 										}
 									}
 								},
@@ -155,6 +161,12 @@
 												"value": "@pipeline().parameters.StructuredFile",
 												"type": "Expression"
 											},
+											"Directory": {
+												"value": "@pipeline().parameters.StructuredDirectory",
+												"type": "Expression"
+											}
+										},
+										"Current": {
 											"Directory": {
 												"value": "@pipeline().parameters.StructuredDirectory",
 												"type": "Expression"
