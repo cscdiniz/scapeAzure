@@ -1,6 +1,23 @@
 {
 	"name": "CopyStructuredToCurrent",
 	"properties": {
+		"parameters": {
+			"StructuredFile": {
+				"type": "string"
+			},
+			"StructuredDirectory": {
+				"type": "string"
+			},
+			"ExecutionId": {
+				"type": "string"
+			},
+			"PipelineId": {
+				"type": "string"
+			},
+			"StageId": {
+				"type": "string"
+			}
+		},
 		"annotations": []
 	}
 }
