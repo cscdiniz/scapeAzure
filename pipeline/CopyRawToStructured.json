@@ -1,6 +1,80 @@
 {
 	"name": "CopyRawToStructured",
 	"properties": {
+		"activities": [
+			{
+				"name": "Copy Raw To Structured",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"value": "@json(pipeline().parameters.jsonMapping)",
+						"type": "Expression"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Raw",
+						"type": "DatasetReference",
+						"parameters": {
+							"File": {
+								"value": "@pipeline().parameters.RawFile",
+								"type": "Expression"
+							},
+							"Directory": {
+								"value": "@pipeline().parameters.RawDiretory",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ADLStructured",
+						"type": "DatasetReference",
+						"parameters": {
+							"File": {
+								"value": "@pipeline().parameters.StructuredFile",
+								"type": "Expression"
+							},
+							"Directory": {
+								"value": "@pipeline().parameters.StructuredDirectory",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
 		"parameters": {
 			"RawFile": {
 				"type": "string"
