@@ -102,48 +102,6 @@
 							}
 						},
 						{
-							"name": "GetColumnMapping",
-							"type": "Lookup",
-							"dependsOn": [
-								{
-									"activity": "UpdateCurrentExecutionLog",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "AzureSqlSource",
-									"sqlReaderStoredProcedureName": "[dbo].[sp_getColumnMapping]",
-									"storedProcedureParameters": {
-										"table_name": {
-											"type": "String",
-											"value": {
-												"value": "@string(item().Object)",
-												"type": "Expression"
-											}
-										}
-									},
-									"queryTimeout": "02:00:00",
-									"partitionOption": "None"
-								},
-								"dataset": {
-									"referenceName": "GetSetMetadata",
-									"type": "DatasetReference"
-								},
-								"firstRowOnly": true
-							}
-						},
-						{
 							"name": "StructuredFilePathName",
 							"type": "SetVariable",
 							"dependsOn": [
@@ -602,7 +560,7 @@
 							"type": "ExecutePipeline",
 							"dependsOn": [
 								{
-									"activity": "GetColumnMapping",
+									"activity": "UpdateCurrentExecutionLog",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -630,10 +588,6 @@
 									},
 									"StructuredDirectory": {
 										"value": "@string(item().Object)",
-										"type": "Expression"
-									},
-									"jsonMapping": {
-										"value": "@json(activity('GetColumnMapping').output.firstRow.json_output)",
 										"type": "Expression"
 									}
 								}
