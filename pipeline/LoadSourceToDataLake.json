@@ -19,6 +19,7 @@
 						"value": "@activity('ETL Table').output.value",
 						"type": "Expression"
 					},
+					"isSequential": false,
 					"activities": [
 						{
 							"name": "RawFilePathName",
@@ -384,7 +385,7 @@
 							],
 							"userProperties": [],
 							"typeProperties": {
-								"variableName": "RawFilePath",
+								"variableName": "Object",
 								"value": {
 									"value": "@item().Object",
 									"type": "Expression"
