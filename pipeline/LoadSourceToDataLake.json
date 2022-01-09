@@ -102,7 +102,14 @@
 									"referenceName": "Raw",
 									"type": "DatasetReference",
 									"parameters": {
-										"File": "entry/2022/01/05"
+										"File": {
+											"value": "@variables('RawFilePath')",
+											"type": "Expression"
+										},
+										"Directory": {
+											"value": "@variables('Object')",
+											"type": "Expression"
+										}
 									}
 								}
 							]
