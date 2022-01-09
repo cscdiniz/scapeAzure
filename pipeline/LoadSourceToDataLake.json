@@ -235,7 +235,7 @@
 							}
 						},
 						{
-							"name": "Execute Pipeline1",
+							"name": "Copy Structured To Current",
 							"type": "ExecutePipeline",
 							"dependsOn": [
 								{
