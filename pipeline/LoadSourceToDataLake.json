@@ -144,85 +144,6 @@
 							}
 						},
 						{
-							"name": "Copy Raw To Structured",
-							"type": "Copy",
-							"dependsOn": [
-								{
-									"activity": "GetColumnMapping",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "JsonSource",
-									"storeSettings": {
-										"type": "AzureBlobFSReadSettings",
-										"recursive": true,
-										"enablePartitionDiscovery": false
-									},
-									"formatSettings": {
-										"type": "JsonReadSettings"
-									}
-								},
-								"sink": {
-									"type": "ParquetSink",
-									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
-									},
-									"formatSettings": {
-										"type": "ParquetWriteSettings"
-									}
-								},
-								"enableStaging": false,
-								"translator": {
-									"value": "@json(activity('GetColumnMapping').output.firstRow.json_output)",
-									"type": "Expression"
-								}
-							},
-							"inputs": [
-								{
-									"referenceName": "Raw",
-									"type": "DatasetReference",
-									"parameters": {
-										"File": {
-											"value": "@variables('RawFilePath')",
-											"type": "Expression"
-										},
-										"Directory": {
-											"value": "@string(item().Object)",
-											"type": "Expression"
-										}
-									}
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "ADLStructured",
-									"type": "DatasetReference",
-									"parameters": {
-										"File": {
-											"value": "@variables('StructuredFilePath')",
-											"type": "Expression"
-										},
-										"Directory": {
-											"value": "@item().Object",
-											"type": "Expression"
-										}
-									}
-								}
-							]
-						},
-						{
 							"name": "StructuredFilePathName",
 							"type": "SetVariable",
 							"dependsOn": [
@@ -247,7 +168,7 @@
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
-									"activity": "Structured File Exists",
+									"activity": "Copy Raw To Structured",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -639,37 +560,6 @@
 							}
 						},
 						{
-							"name": "Structured File Exists",
-							"type": "Validation",
-							"dependsOn": [
-								{
-									"activity": "Copy Raw To Structured",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"userProperties": [],
-							"typeProperties": {
-								"dataset": {
-									"referenceName": "ADLStructured",
-									"type": "DatasetReference",
-									"parameters": {
-										"File": {
-											"value": "@variables('StructuredFilePath')",
-											"type": "Expression"
-										},
-										"Directory": {
-											"value": "@variables('Object')",
-											"type": "Expression"
-										}
-									}
-								},
-								"timeout": "7.00:00:00",
-								"sleep": 10
-							}
-						},
-						{
 							"name": "Copy API To RAW",
 							"type": "ExecutePipeline",
 							"dependsOn": [
@@ -702,6 +592,48 @@
 									},
 									"directory": {
 										"value": "@variables('Object')",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "Copy Raw To Structured",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "GetColumnMapping",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "CopyRawToStructured",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"RawFile": {
+										"value": "@variables('RawFilePath')",
+										"type": "Expression"
+									},
+									"RawDiretory": {
+										"value": "@string(item().Object)",
+										"type": "Expression"
+									},
+									"StructuredFile": {
+										"value": "@variables('StructuredFilePath')",
+										"type": "Expression"
+									},
+									"StructuredDirectory": {
+										"value": "@string(item().Object)",
+										"type": "Expression"
+									},
+									"jsonMapping": {
+										"value": "@json(activity('GetColumnMapping').output.firstRow.json_output)",
 										"type": "Expression"
 									}
 								}
