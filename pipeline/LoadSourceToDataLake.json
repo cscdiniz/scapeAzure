@@ -41,85 +41,11 @@
 							}
 						},
 						{
-							"name": "Copy API to Raw",
-							"type": "Copy",
-							"dependsOn": [
-								{
-									"activity": "StructuredFilePathName",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "RestSource",
-									"httpRequestTimeout": "00:01:40",
-									"requestInterval": "00.00:00:00.010",
-									"requestMethod": "GET",
-									"paginationRules": {
-										"supportRFC5988": "true"
-									}
-								},
-								"sink": {
-									"type": "JsonSink",
-									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
-									},
-									"formatSettings": {
-										"type": "JsonWriteSettings",
-										"filePattern": "setOfObjects"
-									}
-								},
-								"enableStaging": false
-							},
-							"inputs": [
-								{
-									"referenceName": "StarRez",
-									"type": "DatasetReference",
-									"parameters": {
-										"url": {
-											"value": "@string(item().SourceUrl)",
-											"type": "Expression"
-										},
-										"parameter": {
-											"value": "@if(equals(item().IsIncrementalLoad,1),concat(item().CompleteParameter, coalesce(activity('Last Execution Date').output.value, '1900-01-01')['yyyy-MM-dd HH:mm:ss']), item().CompleteParameter)",
-											"type": "Expression"
-										}
-									}
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "Raw",
-									"type": "DatasetReference",
-									"parameters": {
-										"File": {
-											"value": "@variables('RawFilePath')",
-											"type": "Expression"
-										},
-										"Directory": {
-											"value": "@variables('Object')",
-											"type": "Expression"
-										}
-									}
-								}
-							]
-						},
-						{
 							"name": "UpdateCurrentExecutionLog",
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
-									"activity": "Raw File Exists",
+									"activity": "Copy API To RAW",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -713,37 +639,6 @@
 							}
 						},
 						{
-							"name": "Raw File Exists",
-							"type": "Validation",
-							"dependsOn": [
-								{
-									"activity": "Copy API to Raw",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"userProperties": [],
-							"typeProperties": {
-								"dataset": {
-									"referenceName": "Raw",
-									"type": "DatasetReference",
-									"parameters": {
-										"File": {
-											"value": "@variables('RawFilePath')",
-											"type": "Expression"
-										},
-										"Directory": {
-											"value": "@variables('Object')",
-											"type": "Expression"
-										}
-									}
-								},
-								"timeout": "7.00:00:00",
-								"sleep": 10
-							}
-						},
-						{
 							"name": "Structured File Exists",
 							"type": "Validation",
 							"dependsOn": [
@@ -772,6 +667,44 @@
 								},
 								"timeout": "7.00:00:00",
 								"sleep": 10
+							}
+						},
+						{
+							"name": "Copy API To RAW",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "StructuredFilePathName",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "CopyApiToRaw",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"url": {
+										"value": "@string(item().SourceUrl)",
+										"type": "Expression"
+									},
+									"parameter": {
+										"value": "@if(equals(item().IsIncrementalLoad,1),concat(item().CompleteParameter, coalesce(activity('Last Execution Date').output.value, '1900-01-01')['yyyy-MM-dd HH:mm:ss']), item().CompleteParameter)",
+										"type": "Expression"
+									},
+									"file": {
+										"value": "@variables('RawFilePath')",
+										"type": "Expression"
+									},
+									"directory": {
+										"value": "@variables('Object')",
+										"type": "Expression"
+									}
+								}
 							}
 						}
 					]
