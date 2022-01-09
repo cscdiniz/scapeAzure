@@ -64,7 +64,7 @@
 								"storedProcedureName": "[procfwk].[SetLogPipelineFilePathName]",
 								"storedProcedureParameters": {
 									"ADLContainer": {
-										"value": "'R'",
+										"value": "R",
 										"type": "String"
 									},
 									"ExecutionId": {
