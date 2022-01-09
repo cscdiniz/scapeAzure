@@ -231,7 +231,7 @@
 							}
 						},
 						{
-							"name": "If Condition1",
+							"name": "Was the Raw file created",
 							"type": "IfCondition",
 							"dependsOn": [
 								{
@@ -384,7 +384,7 @@
 										}
 									},
 									{
-										"name": "If Condition1_copy1",
+										"name": "Was the Structured file created",
 										"type": "IfCondition",
 										"dependsOn": [
 											{
@@ -514,7 +514,7 @@
 														},
 														"ifFalseActivities": [
 															{
-																"name": "Incremental Load_copy1",
+																"name": "Incremental Load",
 																"type": "ExecuteDataFlow",
 																"dependsOn": [],
 																"policy": {
@@ -582,7 +582,7 @@
 														],
 														"ifTrueActivities": [
 															{
-																"name": "Initial Load_copy1",
+																"name": "Initial Load",
 																"type": "ExecuteDataFlow",
 																"dependsOn": [],
 																"policy": {
