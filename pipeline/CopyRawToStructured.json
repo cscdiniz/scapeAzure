@@ -1,0 +1,23 @@
+{
+	"name": "CopyRawToStructured",
+	"properties": {
+		"parameters": {
+			"RawFile": {
+				"type": "string"
+			},
+			"RawDiretory": {
+				"type": "string"
+			},
+			"StructuredFile": {
+				"type": "string"
+			},
+			"StructuredDirectory": {
+				"type": "string"
+			},
+			"jsonMapping": {
+				"type": "string"
+			}
+		},
+		"annotations": []
+	}
+}
