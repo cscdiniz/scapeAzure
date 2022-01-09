@@ -298,6 +298,67 @@
 									}
 								]
 							}
+						},
+						{
+							"name": "UpdateCurrentExecutionLog_Current",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "Is initial load",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[procfwk].[SetLogPipelineFilePathName]",
+								"storedProcedureParameters": {
+									"ExecutionId": {
+										"value": {
+											"value": "@pipeline().parameters.ExecutionId",
+											"type": "Expression"
+										},
+										"type": "Guid"
+									},
+									"FilePath": {
+										"value": {
+											"value": "@pipeline().parameters.StructuredFile",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineId": {
+										"value": {
+											"value": "@pipeline().parameters.PipelineId",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"StageId": {
+										"value": {
+											"value": "@pipeline().parameters.StageId",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"ADLContainer": {
+										"value": "C",
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "SupportDatabase",
+								"type": "LinkedServiceReference"
+							}
 						}
 					]
 				}
