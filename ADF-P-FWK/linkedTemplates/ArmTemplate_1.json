@@ -1257,7 +1257,9 @@
 						"typeProperties": {
 							"functionName": "ValidatePipeline",
 							"method": "POST",
-							"headers": {},
+							"headers": {
+								"x-functions-key": "36lmNL6LBkmUrvHUZcpDvQKjaelckGJ1Etppmjs1WvYADpAtdimAJA=="
+							},
 							"body": {
 								"value": "@concat('\n{\n    \"tenantId\": \"',variables('WorkerCoreDetails')[0].tenantId,'\",\n    \"applicationId\": \"',variables('WorkerCoreDetails')[0].applicationId,'\",\n    \"authenticationKey\": \"',variables('WorkerCoreDetails')[0].authenticationKey,'\",\n    \"subscriptionId\": \"',variables('WorkerCoreDetails')[0].subscriptionId,'\",\n    \"resourceGroupName\": \"',variables('WorkerCoreDetails')[0].resourceGroupName,'\",\n\t\"orchestratorName\": \"',variables('WorkerCoreDetails')[0].orchestratorName,'\",\n    \"orchestratorType\": \"',variables('WorkerCoreDetails')[0].orchestratorType,'\",\n    \"pipelineName\": \"',variables('WorkerCoreDetails')[0].pipelineName,'\"\n}')",
 								"type": "Expression"
@@ -2241,11 +2243,225 @@
 									}
 								},
 								{
+									"name": "StructuredFilePathName",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "RawFilePathName",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "StructuredFilePath",
+										"value": {
+											"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', string(item().SinkFileName),'_', pipeline().parameters.executionId, '.parquet')",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "ObjectName",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Last Execution Date",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "Object",
+										"value": {
+											"value": "@item().Object",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Last Execution Date",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "Get Original Parameters",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "@concat('SELECT  [LastExecution] FROM [procfwk].[GetMaxExecutionLogDateTime] WHERE  [StageId] = ', string(pipeline().parameters.stageId), ' AND [PipelineId] = ', string(pipeline().parameters.pipelineId), ' and [PipelineParamsUsed] = ', '''', string(activity('Get Original Parameters').output.value), '''')",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "ETL",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "Get Original Parameters",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "@concat('SELECT  [PipelineParamsUsed] FROM [procfwk].[GetCurrentExecution] WHERE  [PipelineId] = ', string(pipeline().parameters.pipelineId), ' AND [LocalExecutionId] = ', '''', pipeline().parameters.executionId, '''')",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "ETL",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "Copy API To RAW",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "StructuredFilePathName",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "CopyApiToRaw",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"url": {
+												"value": "@string(item().SourceUrl)",
+												"type": "Expression"
+											},
+											"parameter": {
+												"value": "@if(bool(item().IsIncrementalLoad),concat(item().CompleteParameter,'''',if(equals(0,activity('Last Execution Date').output.count),'1900-01-01',activity('Last Execution Date').output.value['yyyy-MM-dd HH:mm:ss']), ''''), item().CompleteParameter)",
+												"type": "Expression"
+											},
+											"file": {
+												"value": "@variables('RawFilePath')",
+												"type": "Expression"
+											},
+											"directory": {
+												"value": "@variables('Object')",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Raw File Created",
+									"type": "GetMetadata",
+									"dependsOn": [
+										{
+											"activity": "Copy API To RAW",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "Raw",
+											"type": "DatasetReference",
+											"parameters": {
+												"File": {
+													"value": "@variables('RawFilePath')",
+													"type": "Expression"
+												},
+												"Directory": {
+													"value": "@variables('Object')",
+													"type": "Expression"
+												}
+											}
+										},
+										"fieldList": [
+											"exists"
+										],
+										"storeSettings": {
+											"type": "AzureBlobFSReadSettings",
+											"enablePartitionDiscovery": false
+										},
+										"formatSettings": {
+											"type": "JsonReadSettings"
+										}
+									}
+								},
+								{
+									"name": "Filter1",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "Raw File Created",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('Raw File Created').output.childItems",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@bool(activity('Raw File Created').output.exists)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
 									"name": "UpdateCurrentExecutionLog",
 									"type": "SqlServerStoredProcedure",
 									"dependsOn": [
 										{
-											"activity": "Copy API To RAW",
+											"activity": "Filter1",
 											"dependencyConditions": [
 												"Succeeded"
 											]
@@ -2302,11 +2518,11 @@
 									}
 								},
 								{
-									"name": "StructuredFilePathName",
-									"type": "SetVariable",
+									"name": "Copy Raw To Structured",
+									"type": "ExecutePipeline",
 									"dependsOn": [
 										{
-											"activity": "RawFilePathName",
+											"activity": "UpdateCurrentExecutionLog",
 											"dependencyConditions": [
 												"Succeeded"
 											]
@@ -2314,9 +2530,93 @@
 									],
 									"userProperties": [],
 									"typeProperties": {
-										"variableName": "StructuredFilePath",
-										"value": {
-											"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', string(item().SinkFileName),'_', pipeline().parameters.executionId, '.parquet')",
+										"pipeline": {
+											"referenceName": "CopyRawToStructured",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"RawFile": {
+												"value": "@variables('RawFilePath')",
+												"type": "Expression"
+											},
+											"RawDiretory": {
+												"value": "@string(item().Object)",
+												"type": "Expression"
+											},
+											"StructuredFile": {
+												"value": "@variables('StructuredFilePath')",
+												"type": "Expression"
+											},
+											"StructuredDirectory": {
+												"value": "@string(item().Object)",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Structured File Created",
+									"type": "GetMetadata",
+									"dependsOn": [
+										{
+											"activity": "Copy Raw To Structured",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "ADLStructured",
+											"type": "DatasetReference",
+											"parameters": {
+												"File": {
+													"value": "@variables('StructuredFilePath')",
+													"type": "Expression"
+												},
+												"Directory": {
+													"value": "@variables('Object')",
+													"type": "Expression"
+												}
+											}
+										},
+										"fieldList": [
+											"exists"
+										],
+										"storeSettings": {
+											"type": "AzureBlobFSReadSettings",
+											"enablePartitionDiscovery": false
+										}
+									}
+								},
+								{
+									"name": "Filter2",
+									"type": "Filter",
+									"dependsOn": [
+										{
+											"activity": "Structured File Created",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"items": {
+											"value": "@activity('Structured File Created').output.childItems",
+											"type": "Expression"
+										},
+										"condition": {
+											"value": "@bool(activity('Structured File Created').output.exists)",
 											"type": "Expression"
 										}
 									}
@@ -2326,7 +2626,7 @@
 									"type": "SqlServerStoredProcedure",
 									"dependsOn": [
 										{
-											"activity": "Copy Raw To Structured",
+											"activity": "Filter2",
 											"dependencyConditions": [
 												"Succeeded"
 											]
@@ -2574,26 +2874,6 @@
 									}
 								},
 								{
-									"name": "ObjectName",
-									"type": "SetVariable",
-									"dependsOn": [
-										{
-											"activity": "Last Execution Date",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"variableName": "Object",
-										"value": {
-											"value": "@item().Object",
-											"type": "Expression"
-										}
-									}
-								},
-								{
 									"name": "UpdateCurrentExecutionLog_Current",
 									"type": "SqlServerStoredProcedure",
 									"dependsOn": [
@@ -2652,149 +2932,6 @@
 									"linkedServiceName": {
 										"referenceName": "SupportDatabase",
 										"type": "LinkedServiceReference"
-									}
-								},
-								{
-									"name": "Last Execution Date",
-									"type": "Lookup",
-									"dependsOn": [
-										{
-											"activity": "Get Original Parameters",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": {
-												"value": "@concat('SELECT  [LastExecution] FROM [procfwk].[GetMaxExecutionLogDateTime] WHERE  [StageId] = ', string(pipeline().parameters.stageId), ' AND [PipelineId] = ', string(pipeline().parameters.pipelineId), ' and [PipelineParamsUsed] = ', '''', string(activity('Get Original Parameters').output.value), '''')",
-												"type": "Expression"
-											},
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"dataset": {
-											"referenceName": "ETL",
-											"type": "DatasetReference",
-											"parameters": {}
-										},
-										"firstRowOnly": false
-									}
-								},
-								{
-									"name": "Get Original Parameters",
-									"type": "Lookup",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": {
-												"value": "@concat('SELECT  [PipelineParamsUsed] FROM [procfwk].[GetCurrentExecution] WHERE  [PipelineId] = ', string(pipeline().parameters.pipelineId), ' AND [LocalExecutionId] = ', '''', pipeline().parameters.executionId, '''')",
-												"type": "Expression"
-											},
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"dataset": {
-											"referenceName": "ETL",
-											"type": "DatasetReference",
-											"parameters": {}
-										},
-										"firstRowOnly": false
-									}
-								},
-								{
-									"name": "Copy API To RAW",
-									"type": "ExecutePipeline",
-									"dependsOn": [
-										{
-											"activity": "StructuredFilePathName",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "CopyApiToRaw",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"url": {
-												"value": "@string(item().SourceUrl)",
-												"type": "Expression"
-											},
-											"parameter": {
-												"value": "@if(bool(item().IsIncrementalLoad),concat(item().CompleteParameter,'''',if(equals(0,activity('Last Execution Date').output.count),'1900-01-01',activity('Last Execution Date').output.value['yyyy-MM-dd HH:mm:ss']), ''''), item().CompleteParameter)",
-												"type": "Expression"
-											},
-											"file": {
-												"value": "@variables('RawFilePath')",
-												"type": "Expression"
-											},
-											"directory": {
-												"value": "@variables('Object')",
-												"type": "Expression"
-											}
-										}
-									}
-								},
-								{
-									"name": "Copy Raw To Structured",
-									"type": "ExecutePipeline",
-									"dependsOn": [
-										{
-											"activity": "UpdateCurrentExecutionLog",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "CopyRawToStructured",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"RawFile": {
-												"value": "@variables('RawFilePath')",
-												"type": "Expression"
-											},
-											"RawDiretory": {
-												"value": "@string(item().Object)",
-												"type": "Expression"
-											},
-											"StructuredFile": {
-												"value": "@variables('StructuredFilePath')",
-												"type": "Expression"
-											},
-											"StructuredDirectory": {
-												"value": "@string(item().Object)",
-												"type": "Expression"
-											}
-										}
 									}
 								}
 							]

@@ -128,7 +128,9 @@
 						"typeProperties": {
 							"functionName": "SendEmail",
 							"method": "POST",
-							"headers": {},
+							"headers": {
+								"x-functions-key": "36lmNL6LBkmUrvHUZcpDvQKjaelckGJ1Etppmjs1WvYADpAtdimAJA=="
+							},
 							"body": {
 								"value": "{\n\"emailRecipients\": \"@{pipeline().parameters.Recipients}\",\n\"emailCcRecipients\": \"@{pipeline().parameters.CcRecipients}\",\n\"emailBccRecipients\": \"@{pipeline().parameters.BccRecipients}\",\n\"emailSubject\": \"@{pipeline().parameters.Subject}\",\n\"emailBody\": \"@{pipeline().parameters.Body}\",\n\"emailImportance\": \"@{pipeline().parameters.Importance}\"\n}",
 								"type": "Expression"
