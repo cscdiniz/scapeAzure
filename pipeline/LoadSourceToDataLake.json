@@ -748,16 +748,19 @@
 		"parameters": {
 			"executionId": {
 				"type": "string",
-				"defaultValue": "1"
+				"defaultValue": "E5BB6991-C0D9-482D-9B34-CB6F43315FAF"
 			},
 			"stageId": {
-				"type": "int"
+				"type": "int",
+				"defaultValue": 1
 			},
 			"pipelineId": {
-				"type": "int"
+				"type": "int",
+				"defaultValue": 1
 			},
 			"ETLId": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "1"
 			}
 		},
 		"variables": {
