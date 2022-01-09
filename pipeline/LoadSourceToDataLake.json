@@ -205,10 +205,7 @@
 									"referenceName": "Raw",
 									"type": "DatasetReference",
 									"parameters": {
-										"File": {
-											"value": "@variables('RawFilePath')",
-											"type": "Expression"
-										},
+										"File": "test",
 										"Directory": {
 											"value": "@variables('Object')",
 											"type": "Expression"
@@ -241,7 +238,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"items": {
-									"value": "@activity('Raw File Created').output.childItems",
+									"value": "@activity('Raw File Created').output.exists",
 									"type": "Expression"
 								},
 								"condition": {
