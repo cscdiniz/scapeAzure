@@ -15,13 +15,13 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'starrezhousingAPI'"
 		},
-		"BlobStorage_properties_typeProperties_serviceEndpoint": {
+		"BlobStorage_properties_typeProperties_connectionString_secretName": {
 			"type": "string",
-			"defaultValue": "https://saprodda.blob.core.windows.net"
+			"defaultValue": "kv-saprod"
 		},
 		"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
 			"type": "string",
-			"defaultValue": "https://afa-p-fwk.azurewebsites.net/api/ValidatePipeline?code=cW5AMTE2tbdZF3AjxiCymb8H2wjcorgr0QrC41WQa2nl/R1Cfacdtw=="
+			"defaultValue": "https://afa-p-fwk.azurewebsites.net"
 		},
 		"Keys_properties_typeProperties_baseUrl": {
 			"type": "string",
@@ -76,17 +76,11 @@
 					"starrezhousingAPI_password": {
 						"value": "[parameters('starrezhousingAPI_password')]"
 					},
-					"BlobStorage_properties_typeProperties_serviceEndpoint": {
-						"value": "[parameters('BlobStorage_properties_typeProperties_serviceEndpoint')]"
-					},
 					"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
 						"value": "[parameters('FrameworkFunctions_properties_typeProperties_functionAppUrl')]"
 					},
 					"Keys_properties_typeProperties_baseUrl": {
 						"value": "[parameters('Keys_properties_typeProperties_baseUrl')]"
-					},
-					"adldaprod_properties_typeProperties_url": {
-						"value": "[parameters('adldaprod_properties_typeProperties_url')]"
 					},
 					"starrezhousingAPI_properties_typeProperties_url": {
 						"value": "[parameters('starrezhousingAPI_properties_typeProperties_url')]"
@@ -94,8 +88,14 @@
 					"starrezhousingAPI_properties_typeProperties_userName": {
 						"value": "[parameters('starrezhousingAPI_properties_typeProperties_userName')]"
 					},
+					"BlobStorage_properties_typeProperties_connectionString_secretName": {
+						"value": "[parameters('BlobStorage_properties_typeProperties_connectionString_secretName')]"
+					},
 					"SupportDatabase_properties_typeProperties_connectionString_secretName": {
 						"value": "[parameters('SupportDatabase_properties_typeProperties_connectionString_secretName')]"
+					},
+					"adldaprod_properties_typeProperties_url": {
+						"value": "[parameters('adldaprod_properties_typeProperties_url')]"
 					}
 				}
 			},

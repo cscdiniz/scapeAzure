@@ -11,11 +11,11 @@
 		"starrezhousingAPI_password": {
 			"value": ""
 		},
-		"BlobStorage_properties_typeProperties_serviceEndpoint": {
-			"value": "https://saprodda.blob.core.windows.net"
+		"BlobStorage_properties_typeProperties_connectionString_secretName": {
+			"value": "kv-saprod"
 		},
 		"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
-			"value": "https://afa-p-fwk.azurewebsites.net/api/ValidatePipeline?code=cW5AMTE2tbdZF3AjxiCymb8H2wjcorgr0QrC41WQa2nl/R1Cfacdtw=="
+			"value": "https://afa-p-fwk.azurewebsites.net"
 		},
 		"Keys_properties_typeProperties_baseUrl": {
 			"value": "https://KV-P-FWK.vault.azure.net/"
