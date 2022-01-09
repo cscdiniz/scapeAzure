@@ -186,11 +186,11 @@
 												"type": "DataFlowReference",
 												"parameters": {
 													"File": {
-														"value": "'@{variables('StructuredFilePath')}'",
+														"value": "'@{pipeline().parameters.StructuredFile}'",
 														"type": "Expression"
 													},
 													"Directory": {
-														"value": "'@{variables('Object')}'",
+														"value": "'@{pipeline().parameters.StructuredDirectory}'",
 														"type": "Expression"
 													},
 													"ExecutionDate": {
@@ -198,30 +198,30 @@
 														"type": "Expression"
 													},
 													"RunId": {
-														"value": "'@{pipeline().parameters.executionId}'",
+														"value": "'@{pipeline().parameters.ExecutionId}'",
 														"type": "Expression"
 													}
 												},
 												"datasetParameters": {
 													"StructuredFile": {
 														"File": {
-															"value": "@variables('StructuredFilePath')",
+															"value": "@pipeline().parameters.StructuredFile",
 															"type": "Expression"
 														},
 														"Directory": {
-															"value": "@variables('Object')",
+															"value": "@pipeline().parameters.StructuredDirectory",
 															"type": "Expression"
 														}
 													},
 													"CurrentLookup": {
 														"Directory": {
-															"value": "@variables('Object')",
+															"value": "@pipeline().parameters.StructuredDirectory",
 															"type": "Expression"
 														}
 													},
 													"CurrentSink": {
 														"Directory": {
-															"value": "@variables('Object')",
+															"value": "@pipeline().parameters.StructuredDirectory",
 															"type": "Expression"
 														}
 													}
