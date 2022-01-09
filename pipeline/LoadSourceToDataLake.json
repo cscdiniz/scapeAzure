@@ -699,7 +699,7 @@
 								"source": {
 									"type": "AzureSqlSource",
 									"sqlReaderQuery": {
-										"value": "@concat('SELECT  [LastExecution] FROM [procfwk].[GetCurrentExecution] WHERE  [PipelineId] = ', string(pipeline().parameters.pipelineId))",
+										"value": "@concat('SELECT  [LastExecution] FROM [procfwk].[GetCurrentExecution] WHERE  [PipelineId] = ', string(pipeline().parameters.pipelineId), ' AND [LocalExecutionId] = ', '', pipeline().parameters.executionId, '')",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
