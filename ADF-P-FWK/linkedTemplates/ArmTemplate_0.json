@@ -637,6 +637,46 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ADLCurrent_File')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adldaprod",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Directory": {
+						"type": "string"
+					},
+					"File": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().File",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().Directory",
+							"type": "Expression"
+						},
+						"fileSystem": "current"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/adldaprod')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/CopyApiToRaw')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1013,67 +1053,6 @@
 				"[concat(variables('factoryId'), '/datasets/ADLStructured')]",
 				"[concat(variables('factoryId'), '/datasets/GetSetMetadata')]",
 				"[concat(variables('factoryId'), '/linkedServices/SupportDatabase')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Throw Exception')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Provide a simple way of throwing an exception within Data Factory using TSQL error handling.",
-				"activities": [
-					{
-						"name": "Raise Error",
-						"description": "Using a SQL database to raise an error/exception but wrapped up as a data factory pipeline. Error message information exposed as a pipeline parameter.",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.00:10:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": {
-									"value": "RAISERROR('@{pipeline().parameters.Message}',16,1);",
-									"type": "Expression"
-								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "GetSetMetadata",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": false
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"Message": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "_ProcFwk/_ProcFwkUtils"
-				},
-				"annotations": [
-					"procfwk",
-					"Utils"
-				],
-				"lastPublishTime": "2021-12-28T23:57:17Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/GetSetMetadata')]"
 			]
 		}
 	]

@@ -4038,8 +4038,8 @@
 						}
 					},
 					{
-						"name": "UpdateCurrentExecutionLog_Current",
-						"type": "SqlServerStoredProcedure",
+						"name": "Current Exists",
+						"type": "GetMetadata",
 						"dependsOn": [
 							{
 								"activity": "Is initial load",
@@ -4057,45 +4057,102 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"storedProcedureName": "[[procfwk].[SetLogPipelineFilePathName]",
-							"storedProcedureParameters": {
-								"ExecutionId": {
-									"value": {
-										"value": "@pipeline().parameters.ExecutionId",
+							"dataset": {
+								"referenceName": "ADLCurrent_File",
+								"type": "DatasetReference",
+								"parameters": {
+									"Directory": {
+										"value": "@pipeline().parameters.StructuredDirectory",
 										"type": "Expression"
 									},
-									"type": "Guid"
-								},
-								"FilePath": {
-									"value": {
+									"File": {
 										"value": "@pipeline().parameters.StructuredFile",
 										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineId": {
-									"value": {
-										"value": "@pipeline().parameters.PipelineId",
-										"type": "Expression"
-									},
-									"type": "Int32"
-								},
-								"StageId": {
-									"value": {
-										"value": "@pipeline().parameters.StageId",
-										"type": "Expression"
-									},
-									"type": "Int32"
-								},
-								"ADLContainer": {
-									"value": "C",
-									"type": "String"
+									}
 								}
+							},
+							"fieldList": [
+								"exists"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"enablePartitionDiscovery": false
 							}
-						},
-						"linkedServiceName": {
-							"referenceName": "SupportDatabase",
-							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "If Condition1",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Current Exists",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@bool(activity('Current Exists').output.exists)",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "UpdateCurrentExecutionLog_Current",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[procfwk].[SetLogPipelineFilePathName]",
+										"storedProcedureParameters": {
+											"ExecutionId": {
+												"value": {
+													"value": "@pipeline().parameters.ExecutionId",
+													"type": "Expression"
+												},
+												"type": "Guid"
+											},
+											"FilePath": {
+												"value": {
+													"value": "@pipeline().parameters.StructuredFile",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"PipelineId": {
+												"value": {
+													"value": "@pipeline().parameters.PipelineId",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"StageId": {
+												"value": {
+													"value": "@pipeline().parameters.StageId",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"ADLContainer": {
+												"value": "C",
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "SupportDatabase",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
 						}
 					}
 				],
@@ -4124,9 +4181,10 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ADLCurrent_Directory')]",
-				"[concat(variables('factoryId'), '/linkedServices/SupportDatabase')]",
+				"[concat(variables('factoryId'), '/datasets/ADLCurrent_File')]",
 				"[concat(variables('factoryId'), '/dataflows/DF_ADL2STRUCTUREDToCURRENT_CDC')]",
-				"[concat(variables('factoryId'), '/dataflows/DF_ADL2STRUCTUREDToCURRENT_InitialLoad')]"
+				"[concat(variables('factoryId'), '/dataflows/DF_ADL2STRUCTUREDToCURRENT_InitialLoad')]",
+				"[concat(variables('factoryId'), '/linkedServices/SupportDatabase')]"
 			]
 		},
 		{
@@ -4237,7 +4295,7 @@
 										"source": {
 											"type": "AzureSqlSource",
 											"sqlReaderQuery": {
-												"value": "@concat('SELECT  [LastExecution] FROM [procfwk].[GetMaxExecutionLogDateTime] WHERE  [StageId] = ', string(pipeline().parameters.stageId), ' AND [PipelineId] = ', string(pipeline().parameters.pipelineId), ' and [PipelineParamsUsed] = ', '''', string(activity('Get Original Parameters').output.value), '''')",
+												"value": "@concat('SELECT  [LastExecution] FROM [procfwk].[GetMaxExecutionLogDateTime] WHERE  [StageId] = ', string(pipeline().parameters.stageId), ' AND [PipelineId] = ', string(pipeline().parameters.pipelineId))",
 												"type": "Expression"
 											},
 											"queryTimeout": "02:00:00",
@@ -5138,7 +5196,7 @@
 							"name": "Exists1"
 						}
 					],
-					"script": "parameters{\n\tFile as string ('entry_1201.json'),\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(output(\n\t\tEntryID as long,\n\t\tCategoryID as long,\n\t\tEventID as long,\n\t\tContactID as long,\n\t\tEntryStatusEnum as long,\n\t\tAddressTypeID as long,\n\t\tBookingID as long,\n\t\tEntryApplicationID as long,\n\t\tPinNumber as long,\n\t\tPortalEmail as string,\n\t\tPortalAuthProviderUserID as string,\n\t\tConferenceEmail as string,\n\t\tNameLast as string,\n\t\tNameFirst as string,\n\t\tNameTitle as string,\n\t\tNamePreferred as string,\n\t\tNameWeb as string,\n\t\tNameOther as string,\n\t\tNameInitials as string,\n\t\tNameSharer as string,\n\t\tGenderEnum as long,\n\t\tBirth_GenderEnum as long,\n\t\tDirectoryFlagPrivacy as boolean,\n\t\tDOB as string,\n\t\tPosition as string,\n\t\tID1 as string,\n\t\tID2 as string,\n\t\tID3 as string,\n\t\tID4 as long,\n\t\tID5 as long,\n\t\tPhoneProcessToAccount as boolean,\n\t\tPhoneChargeTypeID as long,\n\t\tPhoneDisableValue as double,\n\t\tPhoneRestrictValue as double,\n\t\tPhoneControlEnum as long,\n\t\tTaxExemptionEnum as long,\n\t\tLastCheckInOutDate as string,\n\t\tPrevious_EntryStatusEnum as long,\n\t\tTesting as boolean,\n\t\tUser_SecurityUserID as long,\n\t\tSecurityUserID as long,\n\t\tCreatedBy_SecurityUserID as long,\n\t\tDateCreated as string,\n\t\tDateModified as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tformat: 'parquet') ~> StructuredFile\nsource(output(\n\t\tEntryID as long,\n\t\tCategoryID as long,\n\t\tEventID as long,\n\t\tContactID as long,\n\t\tEntryStatusEnum as long,\n\t\tAddressTypeID as long,\n\t\tBookingID as long,\n\t\tEntryApplicationID as long,\n\t\tPinNumber as long,\n\t\tPortalEmail as string,\n\t\tPortalAuthProviderUserID as string,\n\t\tConferenceEmail as string,\n\t\tNameLast as string,\n\t\tNameFirst as string,\n\t\tNameTitle as string,\n\t\tNamePreferred as string,\n\t\tNameWeb as string,\n\t\tNameOther as string,\n\t\tNameInitials as string,\n\t\tNameSharer as string,\n\t\tGenderEnum as long,\n\t\tBirth_GenderEnum as long,\n\t\tDirectoryFlagPrivacy as boolean,\n\t\tDOB as string,\n\t\tPosition as string,\n\t\tID1 as string,\n\t\tID2 as string,\n\t\tID3 as string,\n\t\tID4 as long,\n\t\tID5 as long,\n\t\tPhoneProcessToAccount as boolean,\n\t\tPhoneChargeTypeID as long,\n\t\tPhoneDisableValue as double,\n\t\tPhoneRestrictValue as double,\n\t\tPhoneControlEnum as long,\n\t\tTaxExemptionEnum as long,\n\t\tLastCheckInOutDate as string,\n\t\tPrevious_EntryStatusEnum as long,\n\t\tTesting as boolean,\n\t\tUser_SecurityUserID as long,\n\t\tSecurityUserID as long,\n\t\tCreatedBy_SecurityUserID as long,\n\t\tDateCreated as string,\n\t\tDateModified as string,\n\t\tHASH as string,\n\t\tExecutionStatus as string,\n\t\tExecutionCreatedDate as timestamp,\n\t\tExecutionModifiedDate as timestamp,\n\t\tExecutionLogId as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tpartitionRootPath: ($Directory),\n\tformat: 'parquet',\n\twildcardPaths:[(concat($Directory, '/*/*/*/*.parquet'))]) ~> CurrentLookup\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns, CurrentLookup exists(AddColumns@HASH == CurrentLookup@HASH,\n\tnegate:true,\n\tbroadcast: 'auto')~> Exists1\nExists1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:[(concat($Directory, '/', $File))],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> CurrentSink"
+					"script": "parameters{\n\tFile as string ('entry_1201.json'),\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(output(\n\t\tEntryID as long,\n\t\tCategoryID as long,\n\t\tEventID as long,\n\t\tContactID as long,\n\t\tEntryStatusEnum as long,\n\t\tAddressTypeID as long,\n\t\tBookingID as long,\n\t\tEntryApplicationID as long,\n\t\tPinNumber as long,\n\t\tPortalEmail as string,\n\t\tPortalAuthProviderUserID as string,\n\t\tConferenceEmail as string,\n\t\tNameLast as string,\n\t\tNameFirst as string,\n\t\tNameTitle as string,\n\t\tNamePreferred as string,\n\t\tNameWeb as string,\n\t\tNameOther as string,\n\t\tNameInitials as string,\n\t\tNameSharer as string,\n\t\tGenderEnum as long,\n\t\tBirth_GenderEnum as long,\n\t\tDirectoryFlagPrivacy as boolean,\n\t\tDOB as string,\n\t\tPosition as string,\n\t\tID1 as string,\n\t\tID2 as string,\n\t\tID3 as string,\n\t\tID4 as long,\n\t\tID5 as long,\n\t\tPhoneProcessToAccount as boolean,\n\t\tPhoneChargeTypeID as long,\n\t\tPhoneDisableValue as double,\n\t\tPhoneRestrictValue as double,\n\t\tPhoneControlEnum as long,\n\t\tTaxExemptionEnum as long,\n\t\tLastCheckInOutDate as string,\n\t\tPrevious_EntryStatusEnum as long,\n\t\tTesting as boolean,\n\t\tUser_SecurityUserID as long,\n\t\tSecurityUserID as long,\n\t\tCreatedBy_SecurityUserID as long,\n\t\tDateCreated as string,\n\t\tDateModified as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tformat: 'parquet') ~> StructuredFile\nsource(output(\n\t\tEntryID as long,\n\t\tCategoryID as long,\n\t\tEventID as long,\n\t\tContactID as long,\n\t\tEntryStatusEnum as long,\n\t\tAddressTypeID as long,\n\t\tBookingID as long,\n\t\tEntryApplicationID as long,\n\t\tPinNumber as long,\n\t\tPortalEmail as string,\n\t\tPortalAuthProviderUserID as string,\n\t\tConferenceEmail as string,\n\t\tNameLast as string,\n\t\tNameFirst as string,\n\t\tNameTitle as string,\n\t\tNamePreferred as string,\n\t\tNameWeb as string,\n\t\tNameOther as string,\n\t\tNameInitials as string,\n\t\tNameSharer as string,\n\t\tGenderEnum as long,\n\t\tBirth_GenderEnum as long,\n\t\tDirectoryFlagPrivacy as boolean,\n\t\tDOB as string,\n\t\tPosition as string,\n\t\tID1 as string,\n\t\tID2 as string,\n\t\tID3 as string,\n\t\tID4 as long,\n\t\tID5 as long,\n\t\tPhoneProcessToAccount as boolean,\n\t\tPhoneChargeTypeID as long,\n\t\tPhoneDisableValue as double,\n\t\tPhoneRestrictValue as double,\n\t\tPhoneControlEnum as long,\n\t\tTaxExemptionEnum as long,\n\t\tLastCheckInOutDate as string,\n\t\tPrevious_EntryStatusEnum as long,\n\t\tTesting as boolean,\n\t\tUser_SecurityUserID as long,\n\t\tSecurityUserID as long,\n\t\tCreatedBy_SecurityUserID as long,\n\t\tDateCreated as string,\n\t\tDateModified as string,\n\t\tHASH as string,\n\t\tExecutionStatus as string,\n\t\tExecutionCreatedDate as timestamp,\n\t\tExecutionModifiedDate as timestamp,\n\t\tExecutionLogId as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tpartitionRootPath: ($Directory),\n\tformat: 'parquet',\n\twildcardPaths:[(concat($Directory, '/*/*/*/*.parquet'))]) ~> CurrentLookup\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns, CurrentLookup exists(AddColumns@HASH == CurrentLookup@HASH,\n\tnegate:true,\n\tbroadcast: 'auto')~> Exists1\nExists1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> CurrentSink"
 				}
 			},
 			"dependsOn": [
@@ -5177,12 +5235,52 @@
 							"name": "AddColumns"
 						}
 					],
-					"script": "parameters{\n\tFile as string,\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(output(\n\t\tEntryID as long,\n\t\tCategoryID as long,\n\t\tEventID as long,\n\t\tContactID as long,\n\t\tEntryStatusEnum as long,\n\t\tAddressTypeID as long,\n\t\tBookingID as long,\n\t\tEntryApplicationID as long,\n\t\tPinNumber as long,\n\t\tPortalEmail as string,\n\t\tPortalAuthProviderUserID as string,\n\t\tConferenceEmail as string,\n\t\tNameLast as string,\n\t\tNameFirst as string,\n\t\tNameTitle as string,\n\t\tNamePreferred as string,\n\t\tNameWeb as string,\n\t\tNameOther as string,\n\t\tNameInitials as string,\n\t\tNameSharer as string,\n\t\tGenderEnum as long,\n\t\tBirth_GenderEnum as long,\n\t\tDirectoryFlagPrivacy as boolean,\n\t\tDOB as string,\n\t\tPosition as string,\n\t\tID1 as string,\n\t\tID2 as string,\n\t\tID3 as string,\n\t\tID4 as long,\n\t\tID5 as long,\n\t\tPhoneProcessToAccount as boolean,\n\t\tPhoneChargeTypeID as long,\n\t\tPhoneDisableValue as double,\n\t\tPhoneRestrictValue as double,\n\t\tPhoneControlEnum as long,\n\t\tTaxExemptionEnum as long,\n\t\tLastCheckInOutDate as string,\n\t\tPrevious_EntryStatusEnum as long,\n\t\tTesting as boolean,\n\t\tUser_SecurityUserID as long,\n\t\tSecurityUserID as long,\n\t\tCreatedBy_SecurityUserID as long,\n\t\tDateCreated as string,\n\t\tDateModified as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> StructuredFile\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:[(concat($Directory, '/', $File))],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> Current"
+					"script": "parameters{\n\tFile as string,\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(output(\n\t\tEntryID as long,\n\t\tCategoryID as long,\n\t\tEventID as long,\n\t\tContactID as long,\n\t\tEntryStatusEnum as long,\n\t\tAddressTypeID as long,\n\t\tBookingID as long,\n\t\tEntryApplicationID as long,\n\t\tPinNumber as long,\n\t\tPortalEmail as string,\n\t\tPortalAuthProviderUserID as string,\n\t\tConferenceEmail as string,\n\t\tNameLast as string,\n\t\tNameFirst as string,\n\t\tNameTitle as string,\n\t\tNamePreferred as string,\n\t\tNameWeb as string,\n\t\tNameOther as string,\n\t\tNameInitials as string,\n\t\tNameSharer as string,\n\t\tGenderEnum as long,\n\t\tBirth_GenderEnum as long,\n\t\tDirectoryFlagPrivacy as boolean,\n\t\tDOB as string,\n\t\tPosition as string,\n\t\tID1 as string,\n\t\tID2 as string,\n\t\tID3 as string,\n\t\tID4 as long,\n\t\tID5 as long,\n\t\tPhoneProcessToAccount as boolean,\n\t\tPhoneChargeTypeID as long,\n\t\tPhoneDisableValue as double,\n\t\tPhoneRestrictValue as double,\n\t\tPhoneControlEnum as long,\n\t\tTaxExemptionEnum as long,\n\t\tLastCheckInOutDate as string,\n\t\tPrevious_EntryStatusEnum as long,\n\t\tTesting as boolean,\n\t\tUser_SecurityUserID as long,\n\t\tSecurityUserID as long,\n\t\tCreatedBy_SecurityUserID as long,\n\t\tDateCreated as string,\n\t\tDateModified as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> StructuredFile\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Current"
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ADLStructured')]",
 				"[concat(variables('factoryId'), '/datasets/ADLCurrent')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLCurrent_File')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adldaprod",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Directory": {
+						"type": "string"
+					},
+					"File": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().File",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().Directory",
+							"type": "Expression"
+						},
+						"fileSystem": "current"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/adldaprod')]"
 			]
 		}
 	]
