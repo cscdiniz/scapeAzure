@@ -238,7 +238,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"items": {
-									"value": "@activity('Raw File Created').output.exists",
+									"value": "@activity('Raw File Created').output",
 									"type": "Expression"
 								},
 								"condition": {
