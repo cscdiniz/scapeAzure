@@ -1,0 +1,89 @@
+{
+	"name": "CopyApiToRaw",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy API to Raw",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings",
+							"filePattern": "setOfObjects"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "StarRez",
+						"type": "DatasetReference",
+						"parameters": {
+							"url": {
+								"value": "@pipeline().parameters.url",
+								"type": "Expression"
+							},
+							"parameter": {
+								"value": "@pipeline().parameters.parameter",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Raw",
+						"type": "DatasetReference",
+						"parameters": {
+							"File": {
+								"value": "@pipeline().parameters.file",
+								"type": "Expression"
+							},
+							"Directory": {
+								"value": "@pipeline().parameters.directory",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"url": {
+				"type": "string"
+			},
+			"parameter": {
+				"type": "string"
+			},
+			"file": {
+				"type": "string"
+			},
+			"directory": {
+				"type": "string"
+			}
+		},
+		"annotations": []
+	}
+}
