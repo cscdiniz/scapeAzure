@@ -205,11 +205,15 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "ADLCurrent",
+						"referenceName": "ADLCurrent_File",
 						"type": "DatasetReference",
 						"parameters": {
 							"Directory": {
 								"value": "@pipeline().parameters.StructuredDirectory",
+								"type": "Expression"
+							},
+							"File": {
+								"value": "@pipeline().parameters.StructuredFile",
 								"type": "Expression"
 							}
 						}
