@@ -1,0 +1,125 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "ADF-P-FWK"
+		},
+		"FrameworkFunctions_functionKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'functionKey' of 'FrameworkFunctions'"
+		},
+		"starrezhousingAPI_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'starrezhousingAPI'"
+		},
+		"BlobStorage_properties_typeProperties_serviceEndpoint": {
+			"type": "string",
+			"defaultValue": "https://saprodda.blob.core.windows.net"
+		},
+		"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "https://afa-p-fwk.azurewebsites.net/api/ValidatePipeline?code=cW5AMTE2tbdZF3AjxiCymb8H2wjcorgr0QrC41WQa2nl/R1Cfacdtw=="
+		},
+		"Keys_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://KV-P-FWK.vault.azure.net/"
+		},
+		"SupportDatabase_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "kv-dasqlprod"
+		},
+		"adldaprod_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adldaprod.dfs.core.windows.net"
+		},
+		"starrezhousingAPI_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://scapeau.starrezhousing.com/StarRezREST/services"
+		},
+		"starrezhousingAPI_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "cristiane.diniz@scape.com"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "ADF-P-FWK_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"FrameworkFunctions_functionKey": {
+						"value": "[parameters('FrameworkFunctions_functionKey')]"
+					},
+					"starrezhousingAPI_password": {
+						"value": "[parameters('starrezhousingAPI_password')]"
+					},
+					"BlobStorage_properties_typeProperties_serviceEndpoint": {
+						"value": "[parameters('BlobStorage_properties_typeProperties_serviceEndpoint')]"
+					},
+					"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
+						"value": "[parameters('FrameworkFunctions_properties_typeProperties_functionAppUrl')]"
+					},
+					"Keys_properties_typeProperties_baseUrl": {
+						"value": "[parameters('Keys_properties_typeProperties_baseUrl')]"
+					},
+					"adldaprod_properties_typeProperties_url": {
+						"value": "[parameters('adldaprod_properties_typeProperties_url')]"
+					},
+					"starrezhousingAPI_properties_typeProperties_url": {
+						"value": "[parameters('starrezhousingAPI_properties_typeProperties_url')]"
+					},
+					"starrezhousingAPI_properties_typeProperties_userName": {
+						"value": "[parameters('starrezhousingAPI_properties_typeProperties_userName')]"
+					},
+					"SupportDatabase_properties_typeProperties_connectionString_secretName": {
+						"value": "[parameters('SupportDatabase_properties_typeProperties_connectionString_secretName')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "ADF-P-FWK_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ADF-P-FWK_ArmTemplate_0')]"
+			]
+		}
+	]
+}

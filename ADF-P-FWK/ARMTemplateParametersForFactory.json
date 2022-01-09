@@ -1,0 +1,36 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "ADF-P-FWK"
+		},
+		"FrameworkFunctions_functionKey": {
+			"value": ""
+		},
+		"starrezhousingAPI_password": {
+			"value": ""
+		},
+		"BlobStorage_properties_typeProperties_serviceEndpoint": {
+			"value": "https://saprodda.blob.core.windows.net"
+		},
+		"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
+			"value": "https://afa-p-fwk.azurewebsites.net/api/ValidatePipeline?code=cW5AMTE2tbdZF3AjxiCymb8H2wjcorgr0QrC41WQa2nl/R1Cfacdtw=="
+		},
+		"Keys_properties_typeProperties_baseUrl": {
+			"value": "https://KV-P-FWK.vault.azure.net/"
+		},
+		"SupportDatabase_properties_typeProperties_connectionString_secretName": {
+			"value": "kv-dasqlprod"
+		},
+		"adldaprod_properties_typeProperties_url": {
+			"value": "https://adldaprod.dfs.core.windows.net"
+		},
+		"starrezhousingAPI_properties_typeProperties_url": {
+			"value": "https://scapeau.starrezhousing.com/StarRezREST/services"
+		},
+		"starrezhousingAPI_properties_typeProperties_userName": {
+			"value": "cristiane.diniz@scape.com"
+		}
+	}
+}
