@@ -170,7 +170,7 @@
 										"type": "Expression"
 									},
 									"parameter": {
-										"value": "@if(bool(item().IsIncrementalLoad),concat(item().CompleteParameter,'''',if(equals('',activity('Last Execution Date').output.firstRow.LastExecution),'1900-01-01',formatDateTime(activity('Last Execution Date').output.firstRow.LastExecution,'yyyy-MM-dd HH:mm:ss')), ''''), item().CompleteParameter)",
+										"value": "@if(bool(item().IsIncrementalLoad),concat(item().CompleteParameter,'''',if(equals('',activity('Last Execution Date').output?.firstRow.LastExecution),'1900-01-01',formatDateTime(activity('Last Execution Date').output?.firstRow.LastExecution,'yyyy-MM-dd HH:mm:ss')), ''''), item().CompleteParameter)",
 										"type": "Expression"
 									},
 									"file": {
