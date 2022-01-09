@@ -1,6 +1,5 @@
 {
 	"name": "Keys",
-	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
 		"description": "Connection to Key Vault for all other ADF linked service credentials required to run the processing framework.",
 		"annotations": [
@@ -10,5 +9,6 @@
 		"typeProperties": {
 			"baseUrl": "https://KV-P-FWK.vault.azure.net/"
 		}
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
 }
