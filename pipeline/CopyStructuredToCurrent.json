@@ -111,8 +111,8 @@
 							}
 						},
 						{
-							"name": "Data Lake exist",
-							"type": "GetMetadata",
+							"name": "Execute Current Data Flow",
+							"type": "ExecutePipeline",
 							"dependsOn": [
 								{
 									"activity": "UpdateCurrentExecutionLog_Structured",
@@ -121,243 +121,35 @@
 									]
 								}
 							],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
 							"userProperties": [],
 							"typeProperties": {
-								"dataset": {
-									"referenceName": "ADLCurrent_Directory",
-									"type": "DatasetReference",
-									"parameters": {
-										"Directory": {
-											"value": "@pipeline().parameters.StructuredDirectory",
-											"type": "Expression"
-										}
-									}
+								"pipeline": {
+									"referenceName": "ExecuteDataFlowCurrent",
+									"type": "PipelineReference"
 								},
-								"fieldList": [
-									"exists"
-								],
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								}
-							}
-						},
-						{
-							"name": "Is initial load",
-							"type": "IfCondition",
-							"dependsOn": [
-								{
-									"activity": "Data Lake exist",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"userProperties": [],
-							"typeProperties": {
-								"expression": {
-									"value": "@equals(toLower(trim(string(activity('Data Lake exist').output.exists))), 'false')",
-									"type": "Expression"
-								},
-								"ifFalseActivities": [
-									{
-										"name": "Incremental Load",
-										"type": "ExecuteDataFlow",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "1.00:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"dataflow": {
-												"referenceName": "DF_ADL2STRUCTUREDToCURRENT_CDC",
-												"type": "DataFlowReference",
-												"parameters": {
-													"File": {
-														"value": "'@{pipeline().parameters.StructuredFile}'",
-														"type": "Expression"
-													},
-													"Directory": {
-														"value": "'@{pipeline().parameters.StructuredDirectory}'",
-														"type": "Expression"
-													},
-													"ExecutionDate": {
-														"value": "toTimestamp(left('@{pipeline().TriggerTime}', 23), 'yyyy-MM-dd\\'T\\'HH:mm:ss.SSS')",
-														"type": "Expression"
-													},
-													"RunId": {
-														"value": "'@{pipeline().parameters.ExecutionId}'",
-														"type": "Expression"
-													}
-												},
-												"datasetParameters": {
-													"StructuredFile": {
-														"File": {
-															"value": "@pipeline().parameters.StructuredFile",
-															"type": "Expression"
-														},
-														"Directory": {
-															"value": "@pipeline().parameters.StructuredDirectory",
-															"type": "Expression"
-														}
-													},
-													"CurrentLookup": {
-														"Directory": {
-															"value": "@pipeline().parameters.StructuredDirectory",
-															"type": "Expression"
-														}
-													},
-													"CurrentSink": {
-														"Directory": {
-															"value": "@pipeline().parameters.StructuredDirectory",
-															"type": "Expression"
-														}
-													}
-												}
-											},
-											"compute": {
-												"coreCount": 8,
-												"computeType": "General"
-											},
-											"traceLevel": "Fine"
-										}
-									}
-								],
-								"ifTrueActivities": [
-									{
-										"name": "Initial Load",
-										"type": "ExecuteDataFlow",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "1.00:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"dataflow": {
-												"referenceName": "DF_ADL2STRUCTUREDToCURRENT_InitialLoad",
-												"type": "DataFlowReference",
-												"parameters": {
-													"File": {
-														"value": "'@{pipeline().parameters.StructuredFile}'",
-														"type": "Expression"
-													},
-													"Directory": {
-														"value": "'@{pipeline().parameters.StructuredDirectory}'",
-														"type": "Expression"
-													},
-													"ExecutionDate": {
-														"value": "toTimestamp(left('@{pipeline().TriggerTime}', 23), 'yyyy-MM-dd\\'T\\'HH:mm:ss.SSS')",
-														"type": "Expression"
-													},
-													"RunId": {
-														"value": "'@{pipeline().parameters.ExecutionId}'",
-														"type": "Expression"
-													}
-												},
-												"datasetParameters": {
-													"StructuredFile": {
-														"File": {
-															"value": "@pipeline().parameters.StructuredFile",
-															"type": "Expression"
-														},
-														"Directory": {
-															"value": "@pipeline().parameters.StructuredDirectory",
-															"type": "Expression"
-														}
-													},
-													"Current": {
-														"Directory": {
-															"value": "@pipeline().parameters.StructuredDirectory",
-															"type": "Expression"
-														}
-													}
-												}
-											},
-											"compute": {
-												"coreCount": 8,
-												"computeType": "General"
-											},
-											"traceLevel": "Fine"
-										}
-									}
-								]
-							}
-						},
-						{
-							"name": "UpdateCurrentExecutionLog_Current",
-							"type": "SqlServerStoredProcedure",
-							"dependsOn": [
-								{
-									"activity": "Is initial load",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"storedProcedureName": "[procfwk].[SetLogPipelineFilePathName]",
-								"storedProcedureParameters": {
-									"ExecutionId": {
-										"value": {
-											"value": "@pipeline().parameters.ExecutionId",
-											"type": "Expression"
-										},
-										"type": "Guid"
+								"waitOnCompletion": true,
+								"parameters": {
+									"StructuredDirectory": {
+										"value": "@pipeline().parameters.StructuredDirectory",
+										"type": "Expression"
 									},
-									"FilePath": {
-										"value": {
-											"value": "@pipeline().parameters.StructuredFile",
-											"type": "Expression"
-										},
-										"type": "String"
+									"StructuredFile": {
+										"value": "@pipeline().parameters.StructuredFile",
+										"type": "Expression"
+									},
+									"ExecutionId": {
+										"value": "@pipeline().parameters.ExecutionId",
+										"type": "Expression"
 									},
 									"PipelineId": {
-										"value": {
-											"value": "@pipeline().parameters.PipelineId",
-											"type": "Expression"
-										},
-										"type": "Int32"
+										"value": "@pipeline().parameters.PipelineId",
+										"type": "Expression"
 									},
 									"StageId": {
-										"value": {
-											"value": "@pipeline().parameters.StageId",
-											"type": "Expression"
-										},
-										"type": "Int32"
-									},
-									"ADLContainer": {
-										"value": "C",
-										"type": "String"
+										"value": "@pipeline().parameters.StageId",
+										"type": "Expression"
 									}
 								}
-							},
-							"linkedServiceName": {
-								"referenceName": "SupportDatabase",
-								"type": "LinkedServiceReference"
 							}
 						}
 					]
