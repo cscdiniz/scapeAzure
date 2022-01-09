@@ -211,10 +211,6 @@
 							"Directory": {
 								"value": "@pipeline().parameters.StructuredDirectory",
 								"type": "Expression"
-							},
-							"File": {
-								"value": "@pipeline().parameters.StructuredFile",
-								"type": "Expression"
 							}
 						}
 					},
