@@ -68,6 +68,52 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "Get Metadata1",
+				"type": "GetMetadata",
+				"dependsOn": [
+					{
+						"activity": "Copy API to Raw",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "Raw",
+						"type": "DatasetReference",
+						"parameters": {
+							"File": {
+								"value": "@pipeline().parameters.file",
+								"type": "Expression"
+							},
+							"Directory": {
+								"value": "@pipeline().parameters.directory",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [
+						"columnCount"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "JsonReadSettings"
+					}
+				}
 			}
 		],
 		"parameters": {
