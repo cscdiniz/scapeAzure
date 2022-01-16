@@ -470,7 +470,7 @@
 							"storedProcedureParameters": {
 								"ExecutionDate": {
 									"value": {
-										"value": "@pipeline().parameters.ExecutionTime",
+										"value": "toTimestamp(left('@{pipeline().TriggerTime}', 23), 'yyyy-MM-dd\\'T\\'HH:mm:ss.SSS')",
 										"type": "Expression"
 									},
 									"type": "DateTime"
@@ -522,9 +522,6 @@
 				},
 				"parameters": {
 					"StoredProcedure": {
-						"type": "string"
-					},
-					"ExecutionTime": {
 						"type": "string"
 					}
 				},
