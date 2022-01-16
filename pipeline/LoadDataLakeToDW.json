@@ -77,9 +77,6 @@
 		"parameters": {
 			"StoredProcedure": {
 				"type": "string"
-			},
-			"ExecutionTime": {
-				"type": "string"
 			}
 		},
 		"annotations": []
