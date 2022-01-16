@@ -29,7 +29,7 @@
 					"storedProcedureParameters": {
 						"ExecutionDate": {
 							"value": {
-								"value": "@pipeline().parameters.ExecutionTime",
+								"value": "@pipeline().TriggerTime",
 								"type": "Expression"
 							},
 							"type": "DateTime"
@@ -76,7 +76,7 @@
 		],
 		"parameters": {
 			"StoredProcedure": {
-				"type": "string"
+				"type": "int"
 			}
 		},
 		"annotations": []
