@@ -23,8 +23,21 @@
 				"userProperties": [],
 				"typeProperties": {
 					"storedProcedureName": {
-						"value": "@pipeline().parameters.StoredProcedure",
+						"value": "@activity('Get SP Name').output.firstrow.StoredProcedureName",
 						"type": "Expression"
+					},
+					"storedProcedureParameters": {
+						"ExecutionDate": {
+							"value": {
+								"value": "@pipeline().parameters.ExecutionTime",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"sourceSystem": {
+							"value": "'Starrez'",
+							"type": "String"
+						}
 					}
 				},
 				"linkedServiceName": {
@@ -63,6 +76,9 @@
 		],
 		"parameters": {
 			"StoredProcedure": {
+				"type": "string"
+			},
+			"ExecutionTime": {
 				"type": "string"
 			}
 		},
