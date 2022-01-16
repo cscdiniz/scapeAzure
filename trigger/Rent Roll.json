@@ -1,16 +1,19 @@
 {
-	"name": "FunctionalTestingTrigger",
+	"name": "Rent Roll",
 	"properties": {
 		"description": "Used for functional testing of the framework in a dedicated environment.",
 		"annotations": [
 			"procfwk"
 		],
-		"runtimeState": "Stopped",
+		"runtimeState": "Started",
 		"pipelines": [
 			{
 				"pipelineReference": {
 					"referenceName": "01-Grandparent",
 					"type": "PipelineReference"
+				},
+				"parameters": {
+					"BatchName": "Rent Roll"
 				}
 			}
 		],
@@ -18,9 +21,9 @@
 		"typeProperties": {
 			"recurrence": {
 				"frequency": "Hour",
-				"interval": 2,
-				"startTime": "2020-04-06T15:00:00Z",
-				"timeZone": "UTC"
+				"interval": 1,
+				"startTime": "2020-04-06T15:00:00",
+				"timeZone": "AUS Eastern Standard Time"
 			}
 		}
 	}
