@@ -42,6 +42,14 @@
 		"starrezhousingAPI_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "cristiane.diniz@scape.com"
+		},
+		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
+			"type": "string",
+			"defaultValue": "Rent Roll"
+		},
+		"BuildingData_properties_01-Grandparent_parameters_BatchName": {
+			"type": "string",
+			"defaultValue": "BuildingData"
 		}
 	},
 	"variables": {
@@ -3316,6 +3324,7 @@
 							],
 							"storeSettings": {
 								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
 								"enablePartitionDiscovery": false
 							},
 							"formatSettings": {
@@ -5275,7 +5284,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/FunctionalTestingTrigger')]",
+			"name": "[concat(parameters('factoryName'), '/Rent Roll')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -5283,23 +5292,25 @@
 				"annotations": [
 					"procfwk"
 				],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
 							"referenceName": "01-Grandparent",
 							"type": "PipelineReference"
 						},
-						"parameters": {}
+						"parameters": {
+							"BatchName": "[parameters('Rent Roll_properties_01-Grandparent_parameters_BatchName')]"
+						}
 					}
 				],
 				"type": "ScheduleTrigger",
 				"typeProperties": {
 					"recurrence": {
 						"frequency": "Hour",
-						"interval": 2,
-						"startTime": "2020-04-06T15:00:00Z",
-						"timeZone": "UTC"
+						"interval": 1,
+						"startTime": "2020-04-06T15:00:00",
+						"timeZone": "AUS Eastern Standard Time"
 					}
 				}
 			},
@@ -5395,6 +5406,46 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ADLStructured')]",
 				"[concat(variables('factoryId'), '/datasets/ADLCurrent')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BuildingData')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "01-Grandparent",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"BatchName": "[parameters('BuildingData_properties_01-Grandparent_parameters_BatchName')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2022-01-17T06:00:00Z",
+						"timeZone": "UTC",
+						"schedule": {
+							"minutes": [
+								0
+							],
+							"hours": [
+								6
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/01-Grandparent')]"
 			]
 		}
 	]

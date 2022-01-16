@@ -32,6 +32,12 @@
 		"starrezhousingAPI_properties_typeProperties_userName": {
 			"value": "cristiane.diniz@scape.com"
 		},
+		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
+			"value": "Rent Roll"
+		},
+		"BuildingData_properties_01-Grandparent_parameters_BatchName": {
+			"value": "BuildingData"
+		},
 		"containerUri": {
 			"value": ""
 		},
