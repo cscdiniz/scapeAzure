@@ -42,6 +42,10 @@
 		"adldaprod_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adldaprod.dfs.core.windows.net"
+		},
+		"Synapse_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "kv-asa-p"
 		}
 	},
 	"variables": {
@@ -273,6 +277,28 @@
 							"type": "LinkedServiceReference"
 						},
 						"secretName": "kv-adldaprod"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Keys')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Synapse')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "Keys",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "[parameters('Synapse_properties_typeProperties_connectionString_secretName')]"
 					}
 				}
 			},
@@ -884,286 +910,6 @@
 				"[concat(variables('factoryId'), '/datasets/StarRez')]",
 				"[concat(variables('factoryId'), '/datasets/Raw')]",
 				"[concat(variables('factoryId'), '/linkedServices/BlobStorage')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CopyRawToStructured')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Raw File Created",
-						"type": "GetMetadata",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "Raw",
-								"type": "DatasetReference",
-								"parameters": {
-									"File": {
-										"value": "@pipeline().parameters.RawFile",
-										"type": "Expression"
-									},
-									"Directory": {
-										"value": "@pipeline().parameters.RawDiretory",
-										"type": "Expression"
-									}
-								}
-							},
-							"fieldList": [
-								"exists"
-							],
-							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "JsonReadSettings"
-							}
-						}
-					},
-					{
-						"name": "If Condition1",
-						"type": "IfCondition",
-						"dependsOn": [
-							{
-								"activity": "Raw File Created",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@bool(activity('Raw File Created').output.exists)",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "Copy Raw To Structured",
-									"type": "Copy",
-									"dependsOn": [
-										{
-											"activity": "GetColumnMapping",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "JsonSource",
-											"storeSettings": {
-												"type": "AzureBlobFSReadSettings",
-												"recursive": true,
-												"enablePartitionDiscovery": false
-											},
-											"formatSettings": {
-												"type": "JsonReadSettings"
-											}
-										},
-										"sink": {
-											"type": "ParquetSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
-											},
-											"formatSettings": {
-												"type": "ParquetWriteSettings"
-											}
-										},
-										"enableStaging": false,
-										"translator": {
-											"value": "@json(activity('GetColumnMapping').output.firstRow.json_output)",
-											"type": "Expression"
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "Raw",
-											"type": "DatasetReference",
-											"parameters": {
-												"File": {
-													"value": "@pipeline().parameters.RawFile",
-													"type": "Expression"
-												},
-												"Directory": {
-													"value": "@pipeline().parameters.RawDiretory",
-													"type": "Expression"
-												}
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "ADLStructured",
-											"type": "DatasetReference",
-											"parameters": {
-												"File": {
-													"value": "@pipeline().parameters.StructuredFile",
-													"type": "Expression"
-												},
-												"Directory": {
-													"value": "@pipeline().parameters.StructuredDirectory",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								},
-								{
-									"name": "GetColumnMapping",
-									"type": "Lookup",
-									"dependsOn": [
-										{
-											"activity": "Raw UpdateCurrentExecutionLog",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderStoredProcedureName": "[[dbo].[sp_getColumnMapping]",
-											"storedProcedureParameters": {
-												"table_name": {
-													"type": "String",
-													"value": {
-														"value": "@pipeline().parameters.RawDiretory",
-														"type": "Expression"
-													}
-												}
-											},
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"dataset": {
-											"referenceName": "GetSetMetadata",
-											"type": "DatasetReference",
-											"parameters": {}
-										},
-										"firstRowOnly": true
-									}
-								},
-								{
-									"name": "Raw UpdateCurrentExecutionLog",
-									"type": "SqlServerStoredProcedure",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"storedProcedureName": "[[procfwk].[SetLogPipelineFilePathName]",
-										"storedProcedureParameters": {
-											"ADLContainer": {
-												"value": "R",
-												"type": "String"
-											},
-											"ExecutionId": {
-												"value": {
-													"value": "@pipeline().parameters.executionId",
-													"type": "Expression"
-												},
-												"type": "Guid"
-											},
-											"FilePath": {
-												"value": {
-													"value": "@pipeline().parameters.RawFile",
-													"type": "Expression"
-												},
-												"type": "String"
-											},
-											"PipelineId": {
-												"value": {
-													"value": "@pipeline().parameters.PipelineId",
-													"type": "Expression"
-												},
-												"type": "Int32"
-											},
-											"StageId": {
-												"value": {
-													"value": "@pipeline().parameters.StageId",
-													"type": "Expression"
-												},
-												"type": "Int32"
-											}
-										}
-									},
-									"linkedServiceName": {
-										"referenceName": "SupportDatabase",
-										"type": "LinkedServiceReference"
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"RawFile": {
-						"type": "string"
-					},
-					"RawDiretory": {
-						"type": "string"
-					},
-					"StructuredFile": {
-						"type": "string"
-					},
-					"StructuredDirectory": {
-						"type": "string"
-					},
-					"ExecutionId": {
-						"type": "string"
-					},
-					"PipelineId": {
-						"type": "string"
-					},
-					"StageId": {
-						"type": "string"
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/Raw')]",
-				"[concat(variables('factoryId'), '/datasets/ADLStructured')]",
-				"[concat(variables('factoryId'), '/datasets/GetSetMetadata')]",
-				"[concat(variables('factoryId'), '/linkedServices/SupportDatabase')]"
 			]
 		}
 	]

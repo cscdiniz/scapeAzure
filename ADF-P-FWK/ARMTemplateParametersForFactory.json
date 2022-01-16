@@ -37,6 +37,9 @@
 		},
 		"BuildingData_properties_01-Grandparent_parameters_BatchName": {
 			"value": "BuildingData"
+		},
+		"Synapse_properties_typeProperties_connectionString_secretName": {
+			"value": "kv-asa-p"
 		}
 	}
 }

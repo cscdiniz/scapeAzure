@@ -50,6 +50,10 @@
 		"BuildingData_properties_01-Grandparent_parameters_BatchName": {
 			"type": "string",
 			"defaultValue": "BuildingData"
+		},
+		"Synapse_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "kv-asa-p"
 		}
 	},
 	"variables": {
@@ -5446,6 +5450,126 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/01-Grandparent')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LoadDataLakeToDW')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Synapse - SP",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Get SP Name",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": {
+								"value": "@activity('Get SP Name').output.firstrow.StoredProcedureName",
+								"type": "Expression"
+							},
+							"storedProcedureParameters": {
+								"ExecutionDate": {
+									"value": {
+										"value": "@pipeline().parameters.ExecutionTime",
+										"type": "Expression"
+									},
+									"type": "DateTime"
+								},
+								"sourceSystem": {
+									"value": "'Starrez'",
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "Synapse",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "Get SP Name",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "@concat('SELECT [StoredProcedureName] FROM [dbo].[Presentation] WHERE PresentationID = ', pipeline().parameters.StoredProcedure)",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "GetSetMetadata",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"StoredProcedure": {
+						"type": "string"
+					},
+					"ExecutionTime": {
+						"type": "string"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Synapse')]",
+				"[concat(variables('factoryId'), '/datasets/GetSetMetadata')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Synapse')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "Keys",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "[parameters('Synapse_properties_typeProperties_connectionString_secretName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Keys')]"
 			]
 		}
 	]

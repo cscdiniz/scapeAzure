@@ -51,6 +51,10 @@
 			"type": "string",
 			"defaultValue": "BuildingData"
 		},
+		"Synapse_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "kv-asa-p"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -104,6 +108,9 @@
 					},
 					"adldaprod_properties_typeProperties_url": {
 						"value": "[parameters('adldaprod_properties_typeProperties_url')]"
+					},
+					"Synapse_properties_typeProperties_connectionString_secretName": {
+						"value": "[parameters('Synapse_properties_typeProperties_connectionString_secretName')]"
 					}
 				}
 			},
