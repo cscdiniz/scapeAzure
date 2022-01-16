@@ -1,0 +1,17 @@
+{
+	"name": "Synapse",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDW",
+		"typeProperties": {
+			"connectionString": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "Keys",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "kv-asa-p"
+			}
+		}
+	}
+}
