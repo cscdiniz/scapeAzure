@@ -76,7 +76,7 @@
 		],
 		"parameters": {
 			"StoredProcedure": {
-				"type": "int"
+				"type": "string"
 			}
 		},
 		"annotations": []
