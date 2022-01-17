@@ -4,14 +4,7 @@
 		"annotations": [],
 		"type": "AzureSqlDW",
 		"typeProperties": {
-			"connectionString": {
-				"type": "AzureKeyVaultSecret",
-				"store": {
-					"referenceName": "Keys",
-					"type": "LinkedServiceReference"
-				},
-				"secretName": "kv-asa-p"
-			}
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=asa-p.sql.azuresynapse.net;Initial Catalog=prodvault"
 		}
 	},
 	"type": "Microsoft.DataFactory/factories/linkedservices"
