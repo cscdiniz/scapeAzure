@@ -4,7 +4,15 @@
 		"annotations": [],
 		"type": "AzureSqlDW",
 		"typeProperties": {
-			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=asa-p.sql.azuresynapse.net;Initial Catalog=prodvault"
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=asa-p.sql.azuresynapse.net;Initial Catalog=prodvault;User ID=usr_adm_da_asa_prod",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "Keys",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "kv-asa-p"
+			}
 		}
 	},
 	"type": "Microsoft.DataFactory/factories/linkedservices"
