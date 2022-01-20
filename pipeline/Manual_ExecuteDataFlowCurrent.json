@@ -1,0 +1,206 @@
+{
+	"name": "Manual_ExecuteDataFlowCurrent",
+	"properties": {
+		"activities": [
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@bool(activity('Current Exists').output.exists)",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "UpdateCurrentExecutionLog_Current",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[procfwk].[SetLogPipelineFilePathName]",
+								"storedProcedureParameters": {
+									"ExecutionId": {
+										"value": {
+											"value": "@pipeline().parameters.ExecutionId",
+											"type": "Expression"
+										},
+										"type": "Guid"
+									},
+									"FilePath": {
+										"value": {
+											"value": "@pipeline().parameters.StructuredFile",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PipelineId": {
+										"value": {
+											"value": "@pipeline().parameters.PipelineId",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"StageId": {
+										"value": {
+											"value": "@pipeline().parameters.StageId",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"ADLContainer": {
+										"value": "C",
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "SupportDatabase",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT [LogId]\n      ,[LocalExecutionId]\n      ,[StageId]\n      ,[PipelineId]\n      ,[CallingOrchestratorName]\n      ,[ResourceGroupName]\n      ,[OrchestratorType]\n      ,[OrchestratorName]\n      ,[PipelineName]\n      ,[StartDateTime]\n      ,[PipelineStatus]\n      ,[EndDateTime]\n      ,[PipelineRunId]\n      ,[PipelineParamsUsed]\n      ,[RawFilePathName]\n      ,[StructuredFilePathName]\n      ,[CurrentFilePathName]\n  FROM [procfwk].[ExecutionLog]\n  where PipelineParamsUsed = '{ \"pipelineParameters\": {\"ETLId\": \"2\"} }' and StartDateTime > '2022-01-12'",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "GetSetMetadata",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup1').output",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Incremental Load",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "1.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DF_ADL2STRUCTUREDToCURRENT_CDC",
+									"type": "DataFlowReference",
+									"parameters": {
+										"File": {
+											"value": "'@{item().StructuredFilePathName}'",
+											"type": "Expression"
+										},
+										"Directory": {
+											"value": "'@{'Booking'}'",
+											"type": "Expression"
+										},
+										"ExecutionDate": {
+											"value": "@item().StartDateTime",
+											"type": "Expression"
+										},
+										"RunId": {
+											"value": "'@{item().LocalExecutionId}'",
+											"type": "Expression"
+										}
+									},
+									"datasetParameters": {
+										"StructuredFile": {
+											"File": {
+												"value": "@item().StructuredFilePathName",
+												"type": "Expression"
+											},
+											"Directory": {
+												"value": "@pipeline().parameters.StructuredDirectory",
+												"type": "Expression"
+											}
+										},
+										"CurrentLookup": {
+											"Directory": {
+												"value": "@pipeline().parameters.StructuredDirectory",
+												"type": "Expression"
+											}
+										},
+										"CurrentSink": {
+											"Directory": {
+												"value": "@pipeline().parameters.StructuredDirectory",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"StructuredDirectory": {
+				"type": "string"
+			},
+			"StructuredFile": {
+				"type": "string"
+			},
+			"ExecutionId": {
+				"type": "string"
+			},
+			"PipelineId": {
+				"type": "string"
+			},
+			"StageId": {
+				"type": "string"
+			}
+		},
+		"annotations": []
+	}
+}
