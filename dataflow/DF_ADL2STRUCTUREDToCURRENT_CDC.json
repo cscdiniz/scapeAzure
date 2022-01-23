@@ -13,7 +13,7 @@
 				},
 				{
 					"dataset": {
-						"referenceName": "ADLCurrent_Directory",
+						"referenceName": "AzureSynapseAnalytics",
 						"type": "DatasetReference"
 					},
 					"name": "CurrentLookup"
@@ -39,7 +39,7 @@
 					"name": "Select1"
 				}
 			],
-			"script": "parameters{\n\tFile as string ('entry_1201.json'),\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tformat: 'parquet') ~> StructuredFile\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tpartitionRootPath: ($Directory),\n\tformat: 'parquet',\n\twildcardPaths:[(concat($Directory, '/*/*/*/*.parquet'))]) ~> CurrentLookup\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns, Select1 exists(HASH == HASH,\n\tnegate:true,\n\tbroadcast: 'both')~> Exists1\nCurrentLookup select(mapColumn(\n\t\tFileName,\n\t\teach(match(locate('hash',lower(name))==1),\n\t\t\t'HASH' = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nExists1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> CurrentSink"
+			"script": "parameters{\n\tFile as string ('entry_1201.json'),\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tformat: 'parquet') ~> StructuredFile\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn: 'FileName',\n\tpartitionRootPath: ($Directory),\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: (concat(\"Select * From stg.\", $Directory)),\n\tformat: 'query',\n\tstaged: true,\n\twildcardPaths:[(concat($Directory, '/*/*/*/*.parquet'))]) ~> CurrentLookup\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns, Select1 exists(HASH == HASH,\n\tnegate:true,\n\tbroadcast: 'both')~> Exists1\nCurrentLookup select(mapColumn(\n\t\tFileName,\n\t\teach(match(locate('hash',lower(name))==1),\n\t\t\t'HASH' = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nExists1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> CurrentSink"
 		}
 	}
 }
