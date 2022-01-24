@@ -1,0 +1,17 @@
+{
+	"name": "Blob_dimport",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"connectionString": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "Keys",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "kv-saprod"
+			}
+		}
+	}
+}
