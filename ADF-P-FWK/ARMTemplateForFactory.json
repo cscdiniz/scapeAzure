@@ -3711,7 +3711,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/CopyStructuredToCurrent')]",
+			"name": "[concat(parameters('factoryName'), '/CopyStructuredToStage')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -3826,7 +3826,7 @@
 									}
 								},
 								{
-									"name": "Copy data1",
+									"name": "CopyToSTG",
 									"type": "Copy",
 									"dependsOn": [
 										{
@@ -3855,12 +3855,17 @@
 										},
 										"sink": {
 											"type": "SqlDWSink",
+											"preCopyScript": {
+												"value": "@{concat('TRUNCATE TABLE stg.', pipeline().parameters.StructuredDirectory)}",
+												"type": "Expression"
+											},
 											"allowPolyBase": true,
 											"polyBaseSettings": {
 												"rejectValue": 0,
 												"rejectType": "value",
 												"useTypeDefault": true
-											}
+											},
+											"disableMetricsCollection": false
 										},
 										"enableStaging": false,
 										"translator": {
@@ -4756,7 +4761,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "CopyStructuredToCurrent",
+											"referenceName": "CopyStructuredToStage",
 											"type": "PipelineReference"
 										},
 										"waitOnCompletion": true,
@@ -4860,7 +4865,7 @@
 				"[concat(variables('factoryId'), '/datasets/ETL')]",
 				"[concat(variables('factoryId'), '/pipelines/CopyApiToRaw')]",
 				"[concat(variables('factoryId'), '/pipelines/CopyRawToStructured')]",
-				"[concat(variables('factoryId'), '/pipelines/CopyStructuredToCurrent')]"
+				"[concat(variables('factoryId'), '/pipelines/CopyStructuredToStage')]"
 			]
 		},
 		{
