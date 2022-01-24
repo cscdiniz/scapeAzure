@@ -141,17 +141,14 @@
 								},
 								"sink": {
 									"type": "SqlDWSink",
-									"sqlWriterUseTableLock": false
-								},
-								"enableStaging": false,
-								"translator": {
-									"type": "TabularTranslator",
-									"typeConversion": true,
-									"typeConversionSettings": {
-										"allowDataTruncation": true,
-										"treatBooleanAsNumber": false
+									"allowPolyBase": true,
+									"polyBaseSettings": {
+										"rejectValue": 0,
+										"rejectType": "value",
+										"useTypeDefault": true
 									}
-								}
+								},
+								"enableStaging": false
 							},
 							"inputs": [
 								{
