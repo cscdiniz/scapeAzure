@@ -171,10 +171,7 @@
 									"referenceName": "AzureSynapseAnalytics",
 									"type": "DatasetReference",
 									"parameters": {
-										"TableName": {
-											"value": "pipeline().parameters.StructuredDirectory",
-											"type": "Expression"
-										}
+										"TableName": "stg.Entry"
 									}
 								}
 							]
