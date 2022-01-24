@@ -112,6 +112,13 @@
 										}
 									}
 								},
+								"staging": {
+									"linkedService": {
+										"referenceName": "Blob_dimport",
+										"type": "LinkedServiceReference"
+									},
+									"folderPath": "dimport/staging"
+								},
 								"compute": {
 									"coreCount": 8,
 									"computeType": "General"
@@ -165,8 +172,21 @@
 												"value": "@pipeline().parameters.StructuredDirectory",
 												"type": "Expression"
 											}
+										},
+										"Current": {
+											"TableName": {
+												"value": "@pipeline().parameters.StructuredDirectory",
+												"type": "Expression"
+											}
 										}
 									}
+								},
+								"staging": {
+									"linkedService": {
+										"referenceName": "Blob_dimport",
+										"type": "LinkedServiceReference"
+									},
+									"folderPath": "staging"
 								},
 								"compute": {
 									"coreCount": 8,
