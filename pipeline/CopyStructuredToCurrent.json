@@ -116,7 +116,7 @@
 							"type": "Copy",
 							"dependsOn": [
 								{
-									"activity": "UpdateCurrentExecutionLog_Structured",
+									"activity": "GetColumnMapping",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -148,7 +148,11 @@
 										"useTypeDefault": true
 									}
 								},
-								"enableStaging": false
+								"enableStaging": false,
+								"translator": {
+									"value": "@json(activity('GetColumnMapping').output.firstRow.json_output)",
+									"type": "Expression"
+								}
 							},
 							"inputs": [
 								{
@@ -178,6 +182,48 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "GetColumnMapping",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "UpdateCurrentExecutionLog_Structured",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderStoredProcedureName": "[dbo].[sp_getColumnMapping]",
+									"storedProcedureParameters": {
+										"table_name": {
+											"type": "String",
+											"value": {
+												"value": "@pipeline().parameters.StructuredDirectory",
+												"type": "Expression"
+											}
+										}
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "GetSetMetadata",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": true
+							}
 						}
 					]
 				}
