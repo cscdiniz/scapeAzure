@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'starrezhousingAPI'"
 		},
+		"Synapse_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'Synapse'"
+		},
 		"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
 			"type": "string",
 			"defaultValue": "https://afa-p-fwk.azurewebsites.net"
@@ -43,9 +47,9 @@
 			"type": "string",
 			"defaultValue": "https://adldaprod.dfs.core.windows.net"
 		},
-		"Synapse_properties_typeProperties_connectionString_secretName": {
+		"Blob_dimport_properties_typeProperties_connectionString_secretName": {
 			"type": "string",
-			"defaultValue": "kv-asa-p"
+			"defaultValue": "kv-saprod"
 		}
 	},
 	"variables": {
@@ -262,6 +266,29 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Synapse')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('Synapse_connectionString')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "Keys",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "kv-asa-p"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Keys')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/adldaprod')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -285,12 +312,12 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Synapse')]",
+			"name": "[concat(parameters('factoryName'), '/Blob_dimport')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"type": "AzureSqlDW",
+				"type": "AzureBlobStorage",
 				"typeProperties": {
 					"connectionString": {
 						"type": "AzureKeyVaultSecret",
@@ -298,7 +325,7 @@
 							"referenceName": "Keys",
 							"type": "LinkedServiceReference"
 						},
-						"secretName": "[parameters('Synapse_properties_typeProperties_connectionString_secretName')]"
+						"secretName": "[parameters('Blob_dimport_properties_typeProperties_connectionString_secretName')]"
 					}
 				}
 			},
@@ -524,6 +551,38 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/AzureSynapseAnalytics')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Synapse",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"TableName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "stg",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().TableName",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Synapse')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ETL')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -653,263 +712,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/adldaprod')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SourceSystemMetadata')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "SupportDatabase",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "SourceSystemId",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "TableName",
-						"type": "nvarchar"
-					},
-					{
-						"name": "ColumnName",
-						"type": "nvarchar"
-					},
-					{
-						"name": "DataType",
-						"type": "nvarchar"
-					},
-					{
-						"name": "IsRequired",
-						"type": "bit"
-					},
-					{
-						"name": "Size",
-						"type": "nvarchar"
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "SourceSystemMetadata"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/SupportDatabase')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CopyApiToRaw')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy API to Raw",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "RestSource",
-								"httpRequestTimeout": "00:01:40",
-								"requestInterval": "00.00:00:00.010",
-								"requestMethod": "GET",
-								"paginationRules": {
-									"supportRFC5988": "true"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings",
-									"filePattern": "setOfObjects"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "StarRez",
-								"type": "DatasetReference",
-								"parameters": {
-									"url": {
-										"value": "@pipeline().parameters.url",
-										"type": "Expression"
-									},
-									"parameter": {
-										"value": "@pipeline().parameters.parameter",
-										"type": "Expression"
-									}
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Raw",
-								"type": "DatasetReference",
-								"parameters": {
-									"File": {
-										"value": "@pipeline().parameters.file",
-										"type": "Expression"
-									},
-									"Directory": {
-										"value": "@pipeline().parameters.directory",
-										"type": "Expression"
-									}
-								}
-							}
-						]
-					},
-					{
-						"name": "Get Metadata1",
-						"type": "GetMetadata",
-						"dependsOn": [
-							{
-								"activity": "Copy API to Raw",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "Raw",
-								"type": "DatasetReference",
-								"parameters": {
-									"File": {
-										"value": "@pipeline().parameters.file",
-										"type": "Expression"
-									},
-									"Directory": {
-										"value": "@pipeline().parameters.directory",
-										"type": "Expression"
-									}
-								}
-							},
-							"fieldList": [
-								"size"
-							],
-							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "JsonReadSettings"
-							}
-						}
-					},
-					{
-						"name": "If Condition1",
-						"type": "IfCondition",
-						"dependsOn": [
-							{
-								"activity": "Get Metadata1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@greater(activity('Get Metadata1').output.size, 0)",
-								"type": "Expression"
-							},
-							"ifFalseActivities": [
-								{
-									"name": "Delete1",
-									"type": "Delete",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataset": {
-											"referenceName": "Raw",
-											"type": "DatasetReference",
-											"parameters": {
-												"File": {
-													"value": "@pipeline().parameters.file",
-													"type": "Expression"
-												},
-												"Directory": {
-													"value": "@pipeline().parameters.directory",
-													"type": "Expression"
-												}
-											}
-										},
-										"logStorageSettings": {
-											"linkedServiceName": {
-												"referenceName": "BlobStorage",
-												"type": "LinkedServiceReference"
-											},
-											"path": "dimport"
-										},
-										"enableLogging": true,
-										"storeSettings": {
-											"type": "AzureBlobFSReadSettings",
-											"recursive": false,
-											"enablePartitionDiscovery": false
-										}
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"url": {
-						"type": "string"
-					},
-					"parameter": {
-						"type": "string"
-					},
-					"file": {
-						"type": "string"
-					},
-					"directory": {
-						"type": "string"
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/StarRez')]",
-				"[concat(variables('factoryId'), '/datasets/Raw')]",
-				"[concat(variables('factoryId'), '/linkedServices/BlobStorage')]"
 			]
 		}
 	]

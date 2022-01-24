@@ -8,6 +8,9 @@
 		"FrameworkFunctions_functionKey": {
 			"value": ""
 		},
+		"Synapse_connectionString": {
+			"value": ""
+		},
 		"starrezhousingAPI_password": {
 			"value": ""
 		},
@@ -32,14 +35,14 @@
 		"starrezhousingAPI_properties_typeProperties_userName": {
 			"value": "cristiane.diniz@scape.com"
 		},
-		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
-			"value": "Rent Roll"
-		},
 		"BuildingData_properties_01-Grandparent_parameters_BatchName": {
 			"value": "BuildingData"
 		},
-		"Synapse_properties_typeProperties_connectionString_secretName": {
-			"value": "kv-asa-p"
+		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
+			"value": "Rent Roll"
+		},
+		"Blob_dimport_properties_typeProperties_connectionString_secretName": {
+			"value": "kv-saprod"
 		},
 		"containerUri": {
 			"value": ""

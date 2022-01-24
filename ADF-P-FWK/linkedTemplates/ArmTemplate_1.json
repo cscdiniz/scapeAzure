@@ -7,19 +7,270 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "ADF-P-FWK"
 		},
-		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
-			"type": "string",
-			"defaultValue": "Rent Roll"
-		},
 		"BuildingData_properties_01-Grandparent_parameters_BatchName": {
 			"type": "string",
 			"defaultValue": "BuildingData"
+		},
+		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
+			"type": "string",
+			"defaultValue": "Rent Roll"
 		}
 	},
 	"variables": {
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/SourceSystemMetadata')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "SupportDatabase",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "SourceSystemId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "TableName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ColumnName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "DataType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "IsRequired",
+						"type": "bit"
+					},
+					{
+						"name": "Size",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "SourceSystemMetadata"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CopyApiToRaw')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy API to Raw",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"supportRFC5988": "true"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings",
+									"filePattern": "setOfObjects"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "StarRez",
+								"type": "DatasetReference",
+								"parameters": {
+									"url": {
+										"value": "@pipeline().parameters.url",
+										"type": "Expression"
+									},
+									"parameter": {
+										"value": "@pipeline().parameters.parameter",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Raw",
+								"type": "DatasetReference",
+								"parameters": {
+									"File": {
+										"value": "@pipeline().parameters.file",
+										"type": "Expression"
+									},
+									"Directory": {
+										"value": "@pipeline().parameters.directory",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [
+							{
+								"activity": "Copy API to Raw",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Raw",
+								"type": "DatasetReference",
+								"parameters": {
+									"File": {
+										"value": "@pipeline().parameters.file",
+										"type": "Expression"
+									},
+									"Directory": {
+										"value": "@pipeline().parameters.directory",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"size"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "JsonReadSettings"
+							}
+						}
+					},
+					{
+						"name": "If Condition1",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(activity('Get Metadata1').output.size, 0)",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "Delete1",
+									"type": "Delete",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataset": {
+											"referenceName": "Raw",
+											"type": "DatasetReference",
+											"parameters": {
+												"File": {
+													"value": "@pipeline().parameters.file",
+													"type": "Expression"
+												},
+												"Directory": {
+													"value": "@pipeline().parameters.directory",
+													"type": "Expression"
+												}
+											}
+										},
+										"logStorageSettings": {
+											"linkedServiceName": {
+												"referenceName": "BlobStorage",
+												"type": "LinkedServiceReference"
+											},
+											"path": "dimport"
+										},
+										"enableLogging": true,
+										"storeSettings": {
+											"type": "AzureBlobFSReadSettings",
+											"recursive": false,
+											"enablePartitionDiscovery": false
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"url": {
+						"type": "string"
+					},
+					"parameter": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					},
+					"directory": {
+						"type": "string"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/CopyRawToStructured')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
@@ -296,148 +547,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Throw Exception')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Provide a simple way of throwing an exception within Data Factory using TSQL error handling.",
-				"activities": [
-					{
-						"name": "Raise Error",
-						"description": "Using a SQL database to raise an error/exception but wrapped up as a data factory pipeline. Error message information exposed as a pipeline parameter.",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.00:10:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": {
-									"value": "RAISERROR('@{pipeline().parameters.Message}',16,1);",
-									"type": "Expression"
-								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "GetSetMetadata",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": false
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"Message": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "_ProcFwk/_ProcFwkUtils"
-				},
-				"annotations": [
-					"procfwk",
-					"Utils"
-				],
-				"lastPublishTime": "2021-12-28T23:57:17Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_ADL2STRUCTUREDToCURRENT_CDC')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "ADLStructured",
-								"type": "DatasetReference"
-							},
-							"name": "StructuredFile"
-						},
-						{
-							"dataset": {
-								"referenceName": "ADLCurrent_Directory",
-								"type": "DatasetReference"
-							},
-							"name": "CurrentLookup"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "ADLCurrent",
-								"type": "DatasetReference"
-							},
-							"name": "CurrentSink"
-						}
-					],
-					"transformations": [
-						{
-							"name": "AddColumns"
-						},
-						{
-							"name": "Exists1"
-						},
-						{
-							"name": "Select1"
-						}
-					],
-					"script": "parameters{\n\tFile as string ('entry_1201.json'),\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tformat: 'parquet') ~> StructuredFile\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tpartitionRootPath: ($Directory),\n\tformat: 'parquet',\n\twildcardPaths:[(concat($Directory, '/*/*/*/*.parquet'))]) ~> CurrentLookup\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns, Select1 exists(HASH == HASH,\n\tnegate:true,\n\tbroadcast: 'auto')~> Exists1\nCurrentLookup select(mapColumn(\n\t\tFileName,\n\t\teach(match(locate('HASH',lower(name))==1),\n\t\t\t'HASH' = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nExists1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:[($File)],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> CurrentSink"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_ADL2STRUCTUREDToCURRENT_InitialLoad')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "ADLStructured",
-								"type": "DatasetReference"
-							},
-							"name": "StructuredFile"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "ADLCurrent",
-								"type": "DatasetReference"
-							},
-							"name": "Current"
-						}
-					],
-					"transformations": [
-						{
-							"name": "AddColumns"
-						}
-					],
-					"script": "parameters{\n\tFile as string,\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> StructuredFile\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:[($File)],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> Current"
-				}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/LoadDataLakeToDW')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -526,6 +635,148 @@
 					}
 				},
 				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Throw Exception')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Provide a simple way of throwing an exception within Data Factory using TSQL error handling.",
+				"activities": [
+					{
+						"name": "Raise Error",
+						"description": "Using a SQL database to raise an error/exception but wrapped up as a data factory pipeline. Error message information exposed as a pipeline parameter.",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:10:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "RAISERROR('@{pipeline().parameters.Message}',16,1);",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "GetSetMetadata",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"Message": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "_ProcFwk/_ProcFwkUtils"
+				},
+				"annotations": [
+					"procfwk",
+					"Utils"
+				],
+				"lastPublishTime": "2021-12-28T23:57:17Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_ADL2STRUCTUREDToCURRENT_CDC')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ADLStructured",
+								"type": "DatasetReference"
+							},
+							"name": "StructuredFile"
+						},
+						{
+							"dataset": {
+								"referenceName": "AzureSynapseAnalytics",
+								"type": "DatasetReference"
+							},
+							"name": "CurrentLookup"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "AzureSynapseAnalytics",
+								"type": "DatasetReference"
+							},
+							"name": "CurrentSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "AddColumns"
+						},
+						{
+							"name": "Exists1"
+						},
+						{
+							"name": "Select1"
+						}
+					],
+					"script": "parameters{\n\tFile as string ('entry_1201.json'),\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tformat: 'parquet') ~> StructuredFile\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn: 'FileName',\n\tpartitionRootPath: ($Directory),\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: (concat(\"Select * From stg.\", $Directory)),\n\tformat: 'query',\n\tstaged: true,\n\twildcardPaths:[(concat($Directory, '/*/*/*/*.parquet'))]) ~> CurrentLookup\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns, Select1 exists(HASH == HASH,\n\tnegate:true,\n\tbroadcast: 'both')~> Exists1\nCurrentLookup select(mapColumn(\n\t\tFileName,\n\t\teach(match(locate('hash',lower(name))==1),\n\t\t\t'HASH' = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nExists1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> CurrentSink"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_ADL2STRUCTUREDToCURRENT_InitialLoad')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ADLStructured",
+								"type": "DatasetReference"
+							},
+							"name": "StructuredFile"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "AzureSynapseAnalytics",
+								"type": "DatasetReference"
+							},
+							"name": "Current"
+						}
+					],
+					"transformations": [
+						{
+							"name": "AddColumns"
+						}
+					],
+					"script": "parameters{\n\tFile as string,\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> StructuredFile\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current"
+				}
 			},
 			"dependsOn": []
 		},
@@ -2581,20 +2832,26 @@
 													}
 												},
 												"CurrentLookup": {
-													"Directory": {
+													"TableName": {
 														"value": "@pipeline().parameters.StructuredDirectory",
 														"type": "Expression"
 													}
 												},
 												"CurrentSink": {
-													"Directory": {
+													"TableName": {
 														"value": "@pipeline().parameters.StructuredDirectory",
 														"type": "Expression"
 													}
 												}
 											}
 										},
-										"staging": {},
+										"staging": {
+											"linkedService": {
+												"referenceName": "Blob_dimport",
+												"type": "LinkedServiceReference"
+											},
+											"folderPath": "staging"
+										},
 										"compute": {
 											"coreCount": 8,
 											"computeType": "General"
@@ -2650,14 +2907,20 @@
 													}
 												},
 												"Current": {
-													"Directory": {
+													"TableName": {
 														"value": "@pipeline().parameters.StructuredDirectory",
 														"type": "Expression"
 													}
 												}
 											}
 										},
-										"staging": {},
+										"staging": {
+											"linkedService": {
+												"referenceName": "Blob_dimport",
+												"type": "LinkedServiceReference"
+											},
+											"folderPath": "staging"
+										},
 										"compute": {
 											"coreCount": 8,
 											"computeType": "General"
@@ -4506,6 +4769,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/CopyApiToRaw')]",
 				"[concat(variables('factoryId'), '/pipelines/CopyRawToStructured')]",
 				"[concat(variables('factoryId'), '/pipelines/CopyStructuredToCurrent')]"
 			]
@@ -4562,41 +4826,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Rent Roll')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Used for functional testing of the framework in a dedicated environment.",
-				"annotations": [
-					"procfwk"
-				],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "01-Grandparent",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"BatchName": "[parameters('Rent Roll_properties_01-Grandparent_parameters_BatchName')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Hour",
-						"interval": 1,
-						"startTime": "2020-04-06T15:00:00",
-						"timeZone": "AUS Eastern Standard Time"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/01-Grandparent')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/BuildingData')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -4629,6 +4858,41 @@
 								6
 							]
 						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/01-Grandparent')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Rent Roll')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Used for functional testing of the framework in a dedicated environment.",
+				"annotations": [
+					"procfwk"
+				],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "01-Grandparent",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"BatchName": "[parameters('Rent Roll_properties_01-Grandparent_parameters_BatchName')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Hour",
+						"interval": 1,
+						"startTime": "2020-04-06T15:00:00",
+						"timeZone": "AUS Eastern Standard Time"
 					}
 				}
 			},

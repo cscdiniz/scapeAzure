@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'functionKey' of 'FrameworkFunctions'"
 		},
+		"Synapse_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'Synapse'"
+		},
 		"starrezhousingAPI_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'starrezhousingAPI'"
@@ -43,17 +47,17 @@
 			"type": "string",
 			"defaultValue": "cristiane.diniz@scape.com"
 		},
-		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
-			"type": "string",
-			"defaultValue": "Rent Roll"
-		},
 		"BuildingData_properties_01-Grandparent_parameters_BatchName": {
 			"type": "string",
 			"defaultValue": "BuildingData"
 		},
-		"Synapse_properties_typeProperties_connectionString_secretName": {
+		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
 			"type": "string",
-			"defaultValue": "kv-asa-p"
+			"defaultValue": "Rent Roll"
+		},
+		"Blob_dimport_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "kv-saprod"
 		},
 		"containerUri": {
 			"type": "string",
@@ -88,6 +92,9 @@
 					"starrezhousingAPI_password": {
 						"value": "[parameters('starrezhousingAPI_password')]"
 					},
+					"Synapse_connectionString": {
+						"value": "[parameters('Synapse_connectionString')]"
+					},
 					"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
 						"value": "[parameters('FrameworkFunctions_properties_typeProperties_functionAppUrl')]"
 					},
@@ -109,8 +116,8 @@
 					"adldaprod_properties_typeProperties_url": {
 						"value": "[parameters('adldaprod_properties_typeProperties_url')]"
 					},
-					"Synapse_properties_typeProperties_connectionString_secretName": {
-						"value": "[parameters('Synapse_properties_typeProperties_connectionString_secretName')]"
+					"Blob_dimport_properties_typeProperties_connectionString_secretName": {
+						"value": "[parameters('Blob_dimport_properties_typeProperties_connectionString_secretName')]"
 					}
 				}
 			},
@@ -130,11 +137,11 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
-						"value": "[parameters('Rent Roll_properties_01-Grandparent_parameters_BatchName')]"
-					},
 					"BuildingData_properties_01-Grandparent_parameters_BatchName": {
 						"value": "[parameters('BuildingData_properties_01-Grandparent_parameters_BatchName')]"
+					},
+					"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
+						"value": "[parameters('Rent Roll_properties_01-Grandparent_parameters_BatchName')]"
 					}
 				}
 			},
