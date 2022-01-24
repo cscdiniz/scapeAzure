@@ -117,7 +117,7 @@
 										"referenceName": "Blob_dimport",
 										"type": "LinkedServiceReference"
 									},
-									"folderPath": "dimport/staging"
+									"folderPath": "staging"
 								},
 								"compute": {
 									"coreCount": 8,
