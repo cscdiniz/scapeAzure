@@ -248,7 +248,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "CopyStructuredToCurrent",
+									"referenceName": "CopyStructuredToStage",
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true,
