@@ -3866,15 +3866,15 @@
 									},
 									"inputs": [
 										{
-											"referenceName": "ADLCurrent_File",
+											"referenceName": "ADLStructured",
 											"type": "DatasetReference",
 											"parameters": {
-												"Directory": {
-													"value": "@pipeline().parameters.StructuredDirectory",
-													"type": "Expression"
-												},
 												"File": {
 													"value": "@pipeline().parameters.StructuredFile",
+													"type": "Expression"
+												},
+												"Directory": {
+													"value": "@pipeline().parameters.StructuredDirectory",
 													"type": "Expression"
 												}
 											}
@@ -3923,7 +3923,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ADLStructured')]",
 				"[concat(variables('factoryId'), '/linkedServices/SupportDatabase')]",
-				"[concat(variables('factoryId'), '/datasets/ADLCurrent_File')]",
 				"[concat(variables('factoryId'), '/datasets/AzureSynapseAnalytics')]"
 			]
 		},
