@@ -97,6 +97,18 @@
 												"value": "@pipeline().parameters.StructuredDirectory",
 												"type": "Expression"
 											}
+										},
+										"CurrentLookup": {
+											"TableName": {
+												"value": "@pipeline().parameters.StructuredDirectory",
+												"type": "Expression"
+											}
+										},
+										"CurrentSink": {
+											"TableName": {
+												"value": "@pipeline().parameters.StructuredDirectory",
+												"type": "Expression"
+											}
 										}
 									}
 								},
