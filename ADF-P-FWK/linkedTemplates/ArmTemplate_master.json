@@ -23,6 +23,10 @@
 			"type": "string",
 			"defaultValue": "kv-saprod"
 		},
+		"Blob_dimport_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "kv-saprod"
+		},
 		"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
 			"type": "string",
 			"defaultValue": "https://afa-p-fwk.azurewebsites.net"
@@ -54,10 +58,6 @@
 		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
 			"type": "string",
 			"defaultValue": "Rent Roll"
-		},
-		"Blob_dimport_properties_typeProperties_connectionString_secretName": {
-			"type": "string",
-			"defaultValue": "kv-saprod"
 		},
 		"containerUri": {
 			"type": "string",
@@ -110,14 +110,14 @@
 					"BlobStorage_properties_typeProperties_connectionString_secretName": {
 						"value": "[parameters('BlobStorage_properties_typeProperties_connectionString_secretName')]"
 					},
+					"Blob_dimport_properties_typeProperties_connectionString_secretName": {
+						"value": "[parameters('Blob_dimport_properties_typeProperties_connectionString_secretName')]"
+					},
 					"SupportDatabase_properties_typeProperties_connectionString_secretName": {
 						"value": "[parameters('SupportDatabase_properties_typeProperties_connectionString_secretName')]"
 					},
 					"adldaprod_properties_typeProperties_url": {
 						"value": "[parameters('adldaprod_properties_typeProperties_url')]"
-					},
-					"Blob_dimport_properties_typeProperties_connectionString_secretName": {
-						"value": "[parameters('Blob_dimport_properties_typeProperties_connectionString_secretName')]"
 					}
 				}
 			},

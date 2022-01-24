@@ -547,6 +547,220 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/CopyStructuredToCurrent')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Structured File Created",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ADLStructured",
+								"type": "DatasetReference",
+								"parameters": {
+									"File": {
+										"value": "@pipeline().parameters.StructuredFile",
+										"type": "Expression"
+									},
+									"Directory": {
+										"value": "@pipeline().parameters.StructuredDirectory",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"exists"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "If Condition1",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Structured File Created",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@bool(activity('Structured File Created').output.exists)",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "UpdateCurrentExecutionLog_Structured",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[procfwk].[SetLogPipelineFilePathName]",
+										"storedProcedureParameters": {
+											"ExecutionId": {
+												"value": {
+													"value": "@pipeline().parameters.ExecutionId",
+													"type": "Expression"
+												},
+												"type": "Guid"
+											},
+											"FilePath": {
+												"value": {
+													"value": "@pipeline().parameters.StructuredFile",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"PipelineId": {
+												"value": {
+													"value": "@pipeline().parameters.PipelineId",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"StageId": {
+												"value": {
+													"value": "@pipeline().parameters.StageId",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"ADLContainer": {
+												"value": "S",
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "SupportDatabase",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "UpdateCurrentExecutionLog_Structured",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ParquetSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "SqlDWSink"
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ADLCurrent_File",
+											"type": "DatasetReference",
+											"parameters": {
+												"Directory": {
+													"value": "@pipeline().parameters.StructuredDirectory",
+													"type": "Expression"
+												},
+												"File": {
+													"value": "@pipeline().parameters.StructuredFile",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "AzureSynapseAnalytics",
+											"type": "DatasetReference",
+											"parameters": {
+												"TableName": {
+													"value": "@concat('stg.', pipeline().parameters.StructuredDirectory)",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"StructuredFile": {
+						"type": "string"
+					},
+					"StructuredDirectory": {
+						"type": "string"
+					},
+					"ExecutionId": {
+						"type": "string"
+					},
+					"PipelineId": {
+						"type": "string"
+					},
+					"StageId": {
+						"type": "string"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/LoadDataLakeToDW')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -718,6 +932,13 @@
 								"type": "DatasetReference"
 							},
 							"name": "CurrentLookup"
+						},
+						{
+							"dataset": {
+								"referenceName": "GetSetMetadata",
+								"type": "DatasetReference"
+							},
+							"name": "HASH"
 						}
 					],
 					"sinks": [
@@ -727,6 +948,9 @@
 								"type": "DatasetReference"
 							},
 							"name": "CurrentSink"
+						},
+						{
+							"name": "hashcache"
 						}
 					],
 					"transformations": [
@@ -734,13 +958,10 @@
 							"name": "AddColumns"
 						},
 						{
-							"name": "Exists1"
-						},
-						{
 							"name": "Select1"
 						}
 					],
-					"script": "parameters{\n\tFile as string ('entry_1201.json'),\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tformat: 'parquet') ~> StructuredFile\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn: 'FileName',\n\tpartitionRootPath: ($Directory),\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: (concat(\"Select * From stg.\", $Directory)),\n\tformat: 'query',\n\tstaged: true,\n\twildcardPaths:[(concat($Directory, '/*/*/*/*.parquet'))]) ~> CurrentLookup\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns, Select1 exists(HASH == HASH,\n\tnegate:true,\n\tbroadcast: 'both')~> Exists1\nCurrentLookup select(mapColumn(\n\t\tFileName,\n\t\teach(match(locate('hash',lower(name))==1),\n\t\t\t'HASH' = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nExists1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> CurrentSink"
+					"script": "parameters{\n\tFile as string ('2022/01/24/Booking_1EA46AB0-E930-4D0A-891C-BD7D15E9F6B1.parquet'),\n\tDirectory as string ('Booking'),\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tformat: 'parquet') ~> StructuredFile\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn: 'FileName',\n\tpartitionRootPath: ($Directory),\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: (concat(\"Select * From stg.\", $Directory)),\n\tformat: 'query',\n\tstaged: true,\n\twildcardPaths:[(concat($Directory, '/*/*/*/*.parquet'))]) ~> CurrentLookup\nsource(output(\n\t\thash as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tinputs:['@TableName' -> ($Directory),'hash' -> ''],\n\tprocedureName: 'ReturnHASHMD5',\n\tschemaName: 'procfwkHelpers',\n\tresultSet: true,\n\tformat: 'procedure') ~> HASH\nStructuredFile derive(HASH = hashcache#outputs()[1].hash,\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nCurrentLookup select(mapColumn(\n\t\tFileName,\n\t\teach(match(locate('hash',lower(name))==1),\n\t\t\t'HASH' = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nAddColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> CurrentSink\nHASH sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tstore: 'cache',\n\tformat: 'inline',\n\toutput: true,\n\tsaveOrder: 1) ~> hashcache"
 				}
 			},
 			"dependsOn": []
@@ -775,7 +996,7 @@
 							"name": "AddColumns"
 						}
 					],
-					"script": "parameters{\n\tFile as string,\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> StructuredFile\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current"
+					"script": "parameters{\n\tFile as string,\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> StructuredFile\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current"
 				}
 			},
 			"dependsOn": []
@@ -2837,12 +3058,14 @@
 														"type": "Expression"
 													}
 												},
+												"HASH": {},
 												"CurrentSink": {
 													"TableName": {
 														"value": "@pipeline().parameters.StructuredDirectory",
 														"type": "Expression"
 													}
-												}
+												},
+												"hashcache": {}
 											}
 										},
 										"staging": {
@@ -2856,7 +3079,10 @@
 											"coreCount": 8,
 											"computeType": "General"
 										},
-										"traceLevel": "Fine"
+										"traceLevel": "None",
+										"cacheSinks": {
+											"firstRowOnly": true
+										}
 									}
 								}
 							],
@@ -3080,6 +3306,366 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/LoadSourceToDataLake')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "For Each Active ETL",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "ETL Table",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('ETL Table').output.value",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "RawFilePathName",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "ObjectName",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "RawFilePath",
+										"value": {
+											"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', string(item().SinkFileName),'_', pipeline().parameters.executionId, '.', string(item().SinkFileFormat))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "StructuredFilePathName",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "RawFilePathName",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "StructuredFilePath",
+										"value": {
+											"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', string(item().SinkFileName),'_', pipeline().parameters.executionId, '.parquet')",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "ObjectName",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Last Execution Date",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "Object",
+										"value": {
+											"value": "@item().Object",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Last Execution Date",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "Get Original Parameters",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "@concat('SELECT  [LastExecution] FROM [procfwk].[GetMaxExecutionLogDateTime] WHERE  [StageId] = ', string(pipeline().parameters.stageId), ' AND [PipelineId] = ', string(pipeline().parameters.pipelineId))",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "ETL",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": true
+									}
+								},
+								{
+									"name": "Get Original Parameters",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "@concat('SELECT  [PipelineParamsUsed] FROM [procfwk].[GetCurrentExecution] WHERE  [PipelineId] = ', string(pipeline().parameters.pipelineId), ' AND [LocalExecutionId] = ', '''', pipeline().parameters.executionId, '''')",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "ETL",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": false
+									}
+								},
+								{
+									"name": "Copy API To RAW",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "StructuredFilePathName",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "CopyApiToRaw",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"url": {
+												"value": "@string(item().SourceUrl)",
+												"type": "Expression"
+											},
+											"parameter": {
+												"value": "@if(bool(item().IsIncrementalLoad),concat(item().CompleteParameter,'''',if(empty(activity('Last Execution Date').output?.firstRow?.LastExecution),'1900-01-01',formatDateTime(activity('Last Execution Date').output?.firstRow?.LastExecution,'yyyy-MM-dd HH:mm:ss')), ''''), item().CompleteParameter)",
+												"type": "Expression"
+											},
+											"file": {
+												"value": "@variables('RawFilePath')",
+												"type": "Expression"
+											},
+											"directory": {
+												"value": "@variables('Object')",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Copy Raw To Structured",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Copy API To RAW",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "CopyRawToStructured",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"RawFile": {
+												"value": "@variables('RawFilePath')",
+												"type": "Expression"
+											},
+											"RawDiretory": {
+												"value": "@string(item().Object)",
+												"type": "Expression"
+											},
+											"StructuredFile": {
+												"value": "@variables('StructuredFilePath')",
+												"type": "Expression"
+											},
+											"StructuredDirectory": {
+												"value": "@string(item().Object)",
+												"type": "Expression"
+											},
+											"ExecutionId": {
+												"value": "@pipeline().parameters.executionId",
+												"type": "Expression"
+											},
+											"PipelineId": {
+												"value": "@pipeline().parameters.pipelineId",
+												"type": "Expression"
+											},
+											"StageId": {
+												"value": "@pipeline().parameters.stageId",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Copy Structured To Current",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Copy Raw To Structured",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "CopyStructuredToCurrent",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"StructuredFile": {
+												"value": "@variables('StructuredFilePath')",
+												"type": "Expression"
+											},
+											"StructuredDirectory": {
+												"value": "@variables('Object')",
+												"type": "Expression"
+											},
+											"ExecutionId": {
+												"value": "@pipeline().parameters.executionId",
+												"type": "Expression"
+											},
+											"PipelineId": {
+												"value": "@pipeline().parameters.pipelineId",
+												"type": "Expression"
+											},
+											"StageId": {
+												"value": "@pipeline().parameters.stageId",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "ETL Table",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "@concat('Select * From dbo.CurrentETL Where ETLId = ', pipeline().parameters.ETLId)",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "ETL",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"executionId": {
+						"type": "string",
+						"defaultValue": "E5BB6991-C0D9-482D-9B34-CB6F43315FAF"
+					},
+					"stageId": {
+						"type": "int",
+						"defaultValue": 1
+					},
+					"pipelineId": {
+						"type": "int",
+						"defaultValue": 1
+					},
+					"ETLId": {
+						"type": "string",
+						"defaultValue": "1"
+					}
+				},
+				"variables": {
+					"RawFilePath": {
+						"type": "String"
+					},
+					"StructuredFilePath": {
+						"type": "String"
+					},
+					"Object": {
+						"type": "String"
+					},
+					"LastExecutedDate": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/CopyApiToRaw')]",
+				"[concat(variables('factoryId'), '/pipelines/CopyRawToStructured')]",
+				"[concat(variables('factoryId'), '/pipelines/CopyStructuredToCurrent')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/03-Child')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -3206,194 +3792,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/04-Infant')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CopyStructuredToCurrent')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Structured File Created",
-						"type": "GetMetadata",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "ADLStructured",
-								"type": "DatasetReference",
-								"parameters": {
-									"File": {
-										"value": "@pipeline().parameters.StructuredFile",
-										"type": "Expression"
-									},
-									"Directory": {
-										"value": "@pipeline().parameters.StructuredDirectory",
-										"type": "Expression"
-									}
-								}
-							},
-							"fieldList": [
-								"exists"
-							],
-							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							}
-						}
-					},
-					{
-						"name": "If Condition1",
-						"type": "IfCondition",
-						"dependsOn": [
-							{
-								"activity": "Structured File Created",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@bool(activity('Structured File Created').output.exists)",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "UpdateCurrentExecutionLog_Structured",
-									"type": "SqlServerStoredProcedure",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"storedProcedureName": "[[procfwk].[SetLogPipelineFilePathName]",
-										"storedProcedureParameters": {
-											"ExecutionId": {
-												"value": {
-													"value": "@pipeline().parameters.ExecutionId",
-													"type": "Expression"
-												},
-												"type": "Guid"
-											},
-											"FilePath": {
-												"value": {
-													"value": "@pipeline().parameters.StructuredFile",
-													"type": "Expression"
-												},
-												"type": "String"
-											},
-											"PipelineId": {
-												"value": {
-													"value": "@pipeline().parameters.PipelineId",
-													"type": "Expression"
-												},
-												"type": "Int32"
-											},
-											"StageId": {
-												"value": {
-													"value": "@pipeline().parameters.StageId",
-													"type": "Expression"
-												},
-												"type": "Int32"
-											},
-											"ADLContainer": {
-												"value": "S",
-												"type": "String"
-											}
-										}
-									},
-									"linkedServiceName": {
-										"referenceName": "SupportDatabase",
-										"type": "LinkedServiceReference"
-									}
-								},
-								{
-									"name": "Execute Current Data Flow",
-									"type": "ExecutePipeline",
-									"dependsOn": [
-										{
-											"activity": "UpdateCurrentExecutionLog_Structured",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "ExecuteDataFlowCurrent",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"StructuredDirectory": {
-												"value": "@pipeline().parameters.StructuredDirectory",
-												"type": "Expression"
-											},
-											"StructuredFile": {
-												"value": "@pipeline().parameters.StructuredFile",
-												"type": "Expression"
-											},
-											"ExecutionId": {
-												"value": "@pipeline().parameters.ExecutionId",
-												"type": "Expression"
-											},
-											"PipelineId": {
-												"value": "@pipeline().parameters.PipelineId",
-												"type": "Expression"
-											},
-											"StageId": {
-												"value": "@pipeline().parameters.StageId",
-												"type": "Expression"
-											}
-										}
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"StructuredFile": {
-						"type": "string"
-					},
-					"StructuredDirectory": {
-						"type": "string"
-					},
-					"ExecutionId": {
-						"type": "string"
-					},
-					"PipelineId": {
-						"type": "string"
-					},
-					"StageId": {
-						"type": "string"
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/ExecuteDataFlowCurrent')]"
 			]
 		},
 		{
@@ -4415,366 +4813,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/LoadSourceToDataLake')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "For Each Active ETL",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "ETL Table",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('ETL Table').output.value",
-								"type": "Expression"
-							},
-							"isSequential": false,
-							"activities": [
-								{
-									"name": "RawFilePathName",
-									"type": "SetVariable",
-									"dependsOn": [
-										{
-											"activity": "ObjectName",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"variableName": "RawFilePath",
-										"value": {
-											"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', string(item().SinkFileName),'_', pipeline().parameters.executionId, '.', string(item().SinkFileFormat))",
-											"type": "Expression"
-										}
-									}
-								},
-								{
-									"name": "StructuredFilePathName",
-									"type": "SetVariable",
-									"dependsOn": [
-										{
-											"activity": "RawFilePathName",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"variableName": "StructuredFilePath",
-										"value": {
-											"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', string(item().SinkFileName),'_', pipeline().parameters.executionId, '.parquet')",
-											"type": "Expression"
-										}
-									}
-								},
-								{
-									"name": "ObjectName",
-									"type": "SetVariable",
-									"dependsOn": [
-										{
-											"activity": "Last Execution Date",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"variableName": "Object",
-										"value": {
-											"value": "@item().Object",
-											"type": "Expression"
-										}
-									}
-								},
-								{
-									"name": "Last Execution Date",
-									"type": "Lookup",
-									"dependsOn": [
-										{
-											"activity": "Get Original Parameters",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": {
-												"value": "@concat('SELECT  [LastExecution] FROM [procfwk].[GetMaxExecutionLogDateTime] WHERE  [StageId] = ', string(pipeline().parameters.stageId), ' AND [PipelineId] = ', string(pipeline().parameters.pipelineId))",
-												"type": "Expression"
-											},
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"dataset": {
-											"referenceName": "ETL",
-											"type": "DatasetReference",
-											"parameters": {}
-										},
-										"firstRowOnly": true
-									}
-								},
-								{
-									"name": "Get Original Parameters",
-									"type": "Lookup",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": {
-												"value": "@concat('SELECT  [PipelineParamsUsed] FROM [procfwk].[GetCurrentExecution] WHERE  [PipelineId] = ', string(pipeline().parameters.pipelineId), ' AND [LocalExecutionId] = ', '''', pipeline().parameters.executionId, '''')",
-												"type": "Expression"
-											},
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"dataset": {
-											"referenceName": "ETL",
-											"type": "DatasetReference",
-											"parameters": {}
-										},
-										"firstRowOnly": false
-									}
-								},
-								{
-									"name": "Copy API To RAW",
-									"type": "ExecutePipeline",
-									"dependsOn": [
-										{
-											"activity": "StructuredFilePathName",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "CopyApiToRaw",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"url": {
-												"value": "@string(item().SourceUrl)",
-												"type": "Expression"
-											},
-											"parameter": {
-												"value": "@if(bool(item().IsIncrementalLoad),concat(item().CompleteParameter,'''',if(empty(activity('Last Execution Date').output?.firstRow?.LastExecution),'1900-01-01',formatDateTime(activity('Last Execution Date').output?.firstRow?.LastExecution,'yyyy-MM-dd HH:mm:ss')), ''''), item().CompleteParameter)",
-												"type": "Expression"
-											},
-											"file": {
-												"value": "@variables('RawFilePath')",
-												"type": "Expression"
-											},
-											"directory": {
-												"value": "@variables('Object')",
-												"type": "Expression"
-											}
-										}
-									}
-								},
-								{
-									"name": "Copy Raw To Structured",
-									"type": "ExecutePipeline",
-									"dependsOn": [
-										{
-											"activity": "Copy API To RAW",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "CopyRawToStructured",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"RawFile": {
-												"value": "@variables('RawFilePath')",
-												"type": "Expression"
-											},
-											"RawDiretory": {
-												"value": "@string(item().Object)",
-												"type": "Expression"
-											},
-											"StructuredFile": {
-												"value": "@variables('StructuredFilePath')",
-												"type": "Expression"
-											},
-											"StructuredDirectory": {
-												"value": "@string(item().Object)",
-												"type": "Expression"
-											},
-											"ExecutionId": {
-												"value": "@pipeline().parameters.executionId",
-												"type": "Expression"
-											},
-											"PipelineId": {
-												"value": "@pipeline().parameters.pipelineId",
-												"type": "Expression"
-											},
-											"StageId": {
-												"value": "@pipeline().parameters.stageId",
-												"type": "Expression"
-											}
-										}
-									}
-								},
-								{
-									"name": "Copy Structured To Current",
-									"type": "ExecutePipeline",
-									"dependsOn": [
-										{
-											"activity": "Copy Raw To Structured",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "CopyStructuredToCurrent",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"StructuredFile": {
-												"value": "@variables('StructuredFilePath')",
-												"type": "Expression"
-											},
-											"StructuredDirectory": {
-												"value": "@variables('Object')",
-												"type": "Expression"
-											},
-											"ExecutionId": {
-												"value": "@pipeline().parameters.executionId",
-												"type": "Expression"
-											},
-											"PipelineId": {
-												"value": "@pipeline().parameters.pipelineId",
-												"type": "Expression"
-											},
-											"StageId": {
-												"value": "@pipeline().parameters.stageId",
-												"type": "Expression"
-											}
-										}
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "ETL Table",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": {
-									"value": "@concat('Select * From dbo.CurrentETL Where ETLId = ', pipeline().parameters.ETLId)",
-									"type": "Expression"
-								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "ETL",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": false
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"executionId": {
-						"type": "string",
-						"defaultValue": "E5BB6991-C0D9-482D-9B34-CB6F43315FAF"
-					},
-					"stageId": {
-						"type": "int",
-						"defaultValue": 1
-					},
-					"pipelineId": {
-						"type": "int",
-						"defaultValue": 1
-					},
-					"ETLId": {
-						"type": "string",
-						"defaultValue": "1"
-					}
-				},
-				"variables": {
-					"RawFilePath": {
-						"type": "String"
-					},
-					"StructuredFilePath": {
-						"type": "String"
-					},
-					"Object": {
-						"type": "String"
-					},
-					"LastExecutedDate": {
-						"type": "String"
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/CopyApiToRaw')]",
-				"[concat(variables('factoryId'), '/pipelines/CopyRawToStructured')]",
-				"[concat(variables('factoryId'), '/pipelines/CopyStructuredToCurrent')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/01-Grandparent')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -4874,7 +4912,7 @@
 				"annotations": [
 					"procfwk"
 				],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {

@@ -39,6 +39,10 @@
 			"type": "string",
 			"defaultValue": "kv-saprod"
 		},
+		"Blob_dimport_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "kv-saprod"
+		},
 		"SupportDatabase_properties_typeProperties_connectionString_secretName": {
 			"type": "string",
 			"defaultValue": "kv-dasqlprod"
@@ -46,10 +50,6 @@
 		"adldaprod_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adldaprod.dfs.core.windows.net"
-		},
-		"Blob_dimport_properties_typeProperties_connectionString_secretName": {
-			"type": "string",
-			"defaultValue": "kv-saprod"
 		}
 	},
 	"variables": {
@@ -241,6 +241,28 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Blob_dimport')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "Keys",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "[parameters('Blob_dimport_properties_typeProperties_connectionString_secretName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Keys')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/SupportDatabase')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -304,28 +326,6 @@
 							"type": "LinkedServiceReference"
 						},
 						"secretName": "kv-adldaprod"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Keys')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Blob_dimport')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobStorage",
-				"typeProperties": {
-					"connectionString": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "Keys",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": "[parameters('Blob_dimport_properties_typeProperties_connectionString_secretName')]"
 					}
 				}
 			},

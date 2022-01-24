@@ -23,6 +23,10 @@
 			"type": "string",
 			"defaultValue": "kv-saprod"
 		},
+		"Blob_dimport_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "kv-saprod"
+		},
 		"FrameworkFunctions_properties_typeProperties_functionAppUrl": {
 			"type": "string",
 			"defaultValue": "https://afa-p-fwk.azurewebsites.net"
@@ -54,10 +58,6 @@
 		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
 			"type": "string",
 			"defaultValue": "Rent Roll"
-		},
-		"Blob_dimport_properties_typeProperties_connectionString_secretName": {
-			"type": "string",
-			"defaultValue": "kv-saprod"
 		}
 	},
 	"variables": {
@@ -3826,8 +3826,8 @@
 									}
 								},
 								{
-									"name": "Execute Current Data Flow",
-									"type": "ExecutePipeline",
+									"name": "Copy data1",
+									"type": "Copy",
 									"dependsOn": [
 										{
 											"activity": "UpdateCurrentExecutionLog_Structured",
@@ -3836,36 +3836,64 @@
 											]
 										}
 									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
 									"userProperties": [],
 									"typeProperties": {
-										"pipeline": {
-											"referenceName": "ExecuteDataFlowCurrent",
-											"type": "PipelineReference"
+										"source": {
+											"type": "ParquetSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
 										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"StructuredDirectory": {
-												"value": "@pipeline().parameters.StructuredDirectory",
-												"type": "Expression"
-											},
-											"StructuredFile": {
-												"value": "@pipeline().parameters.StructuredFile",
-												"type": "Expression"
-											},
-											"ExecutionId": {
-												"value": "@pipeline().parameters.ExecutionId",
-												"type": "Expression"
-											},
-											"PipelineId": {
-												"value": "@pipeline().parameters.PipelineId",
-												"type": "Expression"
-											},
-											"StageId": {
-												"value": "@pipeline().parameters.StageId",
-												"type": "Expression"
+										"sink": {
+											"type": "SqlDWSink"
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
 											}
 										}
-									}
+									},
+									"inputs": [
+										{
+											"referenceName": "ADLCurrent_File",
+											"type": "DatasetReference",
+											"parameters": {
+												"Directory": {
+													"value": "@pipeline().parameters.StructuredDirectory",
+													"type": "Expression"
+												},
+												"File": {
+													"value": "@pipeline().parameters.StructuredFile",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "AzureSynapseAnalytics",
+											"type": "DatasetReference",
+											"parameters": {
+												"TableName": {
+													"value": "@concat('stg.', pipeline().parameters.StructuredDirectory)",
+													"type": "Expression"
+												}
+											}
+										}
+									]
 								}
 							]
 						}
@@ -3897,7 +3925,8 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ADLStructured')]",
 				"[concat(variables('factoryId'), '/linkedServices/SupportDatabase')]",
-				"[concat(variables('factoryId'), '/pipelines/ExecuteDataFlowCurrent')]"
+				"[concat(variables('factoryId'), '/datasets/ADLCurrent_File')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSynapseAnalytics')]"
 			]
 		},
 		{
@@ -4082,12 +4111,14 @@
 														"type": "Expression"
 													}
 												},
+												"HASH": {},
 												"CurrentSink": {
 													"TableName": {
 														"value": "@pipeline().parameters.StructuredDirectory",
 														"type": "Expression"
 													}
-												}
+												},
+												"hashcache": {}
 											}
 										},
 										"staging": {
@@ -4101,7 +4132,10 @@
 											"coreCount": 8,
 											"computeType": "General"
 										},
-										"traceLevel": "Fine"
+										"traceLevel": "None",
+										"cacheSinks": {
+											"firstRowOnly": true
+										}
 									}
 								}
 							],
@@ -5327,6 +5361,28 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Blob_dimport')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "Keys",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "[parameters('Blob_dimport_properties_typeProperties_connectionString_secretName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Keys')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/FrameworkFunctions')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -5503,7 +5559,7 @@
 				"annotations": [
 					"procfwk"
 				],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -5550,6 +5606,13 @@
 								"type": "DatasetReference"
 							},
 							"name": "CurrentLookup"
+						},
+						{
+							"dataset": {
+								"referenceName": "GetSetMetadata",
+								"type": "DatasetReference"
+							},
+							"name": "HASH"
 						}
 					],
 					"sinks": [
@@ -5559,6 +5622,9 @@
 								"type": "DatasetReference"
 							},
 							"name": "CurrentSink"
+						},
+						{
+							"name": "hashcache"
 						}
 					],
 					"transformations": [
@@ -5566,18 +5632,16 @@
 							"name": "AddColumns"
 						},
 						{
-							"name": "Exists1"
-						},
-						{
 							"name": "Select1"
 						}
 					],
-					"script": "parameters{\n\tFile as string ('entry_1201.json'),\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tformat: 'parquet') ~> StructuredFile\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn: 'FileName',\n\tpartitionRootPath: ($Directory),\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: (concat(\"Select * From stg.\", $Directory)),\n\tformat: 'query',\n\tstaged: true,\n\twildcardPaths:[(concat($Directory, '/*/*/*/*.parquet'))]) ~> CurrentLookup\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns, Select1 exists(HASH == HASH,\n\tnegate:true,\n\tbroadcast: 'both')~> Exists1\nCurrentLookup select(mapColumn(\n\t\tFileName,\n\t\teach(match(locate('hash',lower(name))==1),\n\t\t\t'HASH' = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nExists1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> CurrentSink"
+					"script": "parameters{\n\tFile as string ('2022/01/24/Booking_1EA46AB0-E930-4D0A-891C-BD7D15E9F6B1.parquet'),\n\tDirectory as string ('Booking'),\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\trowUrlColumn: 'FileName',\n\tformat: 'parquet') ~> StructuredFile\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn: 'FileName',\n\tpartitionRootPath: ($Directory),\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: (concat(\"Select * From stg.\", $Directory)),\n\tformat: 'query',\n\tstaged: true,\n\twildcardPaths:[(concat($Directory, '/*/*/*/*.parquet'))]) ~> CurrentLookup\nsource(output(\n\t\thash as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tinputs:['@TableName' -> ($Directory),'hash' -> ''],\n\tprocedureName: 'ReturnHASHMD5',\n\tschemaName: 'procfwkHelpers',\n\tresultSet: true,\n\tformat: 'procedure') ~> HASH\nStructuredFile derive(HASH = hashcache#outputs()[1].hash,\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nCurrentLookup select(mapColumn(\n\t\tFileName,\n\t\teach(match(locate('hash',lower(name))==1),\n\t\t\t'HASH' = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nAddColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> CurrentSink\nHASH sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tstore: 'cache',\n\tformat: 'inline',\n\toutput: true,\n\tsaveOrder: 1) ~> hashcache"
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ADLStructured')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSynapseAnalytics')]"
+				"[concat(variables('factoryId'), '/datasets/AzureSynapseAnalytics')]",
+				"[concat(variables('factoryId'), '/datasets/GetSetMetadata')]"
 			]
 		},
 		{
@@ -5610,34 +5674,12 @@
 							"name": "AddColumns"
 						}
 					],
-					"script": "parameters{\n\tFile as string,\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> StructuredFile\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current"
+					"script": "parameters{\n\tFile as string,\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> StructuredFile\nStructuredFile derive(HASH = md5(columns()),\n\t\tExecutionStatus = 'INSERT',\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionModifiedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current"
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ADLStructured')]",
 				"[concat(variables('factoryId'), '/datasets/AzureSynapseAnalytics')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Blob_dimport')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobStorage",
-				"typeProperties": {
-					"connectionString": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "Keys",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": "[parameters('Blob_dimport_properties_typeProperties_connectionString_secretName')]"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/Keys')]"
 			]
 		}
 	]
