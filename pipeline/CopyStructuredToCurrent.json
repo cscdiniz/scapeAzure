@@ -34,6 +34,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					}
 				}
@@ -111,8 +112,8 @@
 							}
 						},
 						{
-							"name": "Execute Current Data Flow",
-							"type": "ExecutePipeline",
+							"name": "Copy data1",
+							"type": "Copy",
 							"dependsOn": [
 								{
 									"activity": "UpdateCurrentExecutionLog_Structured",
@@ -121,36 +122,65 @@
 									]
 								}
 							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
 							"userProperties": [],
 							"typeProperties": {
-								"pipeline": {
-									"referenceName": "ExecuteDataFlowCurrent",
-									"type": "PipelineReference"
+								"source": {
+									"type": "ParquetSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									}
 								},
-								"waitOnCompletion": true,
-								"parameters": {
-									"StructuredDirectory": {
-										"value": "@pipeline().parameters.StructuredDirectory",
-										"type": "Expression"
-									},
-									"StructuredFile": {
-										"value": "@pipeline().parameters.StructuredFile",
-										"type": "Expression"
-									},
-									"ExecutionId": {
-										"value": "@pipeline().parameters.ExecutionId",
-										"type": "Expression"
-									},
-									"PipelineId": {
-										"value": "@pipeline().parameters.PipelineId",
-										"type": "Expression"
-									},
-									"StageId": {
-										"value": "@pipeline().parameters.StageId",
-										"type": "Expression"
+								"sink": {
+									"type": "SqlDWSink",
+									"sqlWriterUseTableLock": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
 									}
 								}
-							}
+							},
+							"inputs": [
+								{
+									"referenceName": "ADLCurrent_File",
+									"type": "DatasetReference",
+									"parameters": {
+										"Directory": {
+											"value": "@pipeline().parameters.StructuredDirectory",
+											"type": "Expression"
+										},
+										"File": {
+											"value": "@pipeline().parameters.StructuredFile",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "AzureSynapseAnalytics",
+									"type": "DatasetReference",
+									"parameters": {
+										"TableName": {
+											"value": "@concat('stg.', pipeline().parameters.StructuredDirectory)",
+											"type": "Expression"
+										}
+									}
+								}
+							]
 						}
 					]
 				}
