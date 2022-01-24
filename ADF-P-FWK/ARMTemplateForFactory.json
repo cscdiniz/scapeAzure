@@ -3886,7 +3886,7 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"TableName": {
-													"value": "@concat('stg.', pipeline().parameters.StructuredDirectory)",
+													"value": "pipeline().parameters.StructuredDirectory",
 													"type": "Expression"
 												}
 											}
