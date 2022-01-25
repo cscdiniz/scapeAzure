@@ -72,6 +72,10 @@
 							"typeProperties": {
 								"storedProcedureName": "[procfwk].[SetLogPipelineFilePathName]",
 								"storedProcedureParameters": {
+									"ADLContainer": {
+										"value": "S",
+										"type": "String"
+									},
 									"ExecutionId": {
 										"value": {
 											"value": "@pipeline().parameters.ExecutionId",
@@ -93,16 +97,16 @@
 										},
 										"type": "Int32"
 									},
+									"RecordsInserted": {
+										"value": "",
+										"type": "Int32"
+									},
 									"StageId": {
 										"value": {
 											"value": "@pipeline().parameters.StageId",
 											"type": "Expression"
 										},
 										"type": "Int32"
-									},
-									"ADLContainer": {
-										"value": "S",
-										"type": "String"
 									}
 								}
 							},
