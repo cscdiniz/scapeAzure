@@ -181,14 +181,7 @@
 						{
 							"name": "Raw UpdateCurrentExecutionLog",
 							"type": "SqlServerStoredProcedure",
-							"dependsOn": [
-								{
-									"activity": "Lookup1",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -234,7 +227,7 @@
 									},
 									"RecordsInserted": {
 										"value": {
-											"value": "@activity('Lookup1').output.count",
+											"value": "@activity('Copy API to Raw').output.insert",
 											"type": "Expression"
 										},
 										"type": "Int32"
@@ -244,47 +237,6 @@
 							"linkedServiceName": {
 								"referenceName": "SupportDatabase",
 								"type": "LinkedServiceReference"
-							}
-						},
-						{
-							"name": "Lookup1",
-							"type": "Lookup",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "JsonSource",
-									"storeSettings": {
-										"type": "AzureBlobFSReadSettings",
-										"recursive": true,
-										"enablePartitionDiscovery": false
-									},
-									"formatSettings": {
-										"type": "JsonReadSettings"
-									}
-								},
-								"dataset": {
-									"referenceName": "Raw",
-									"type": "DatasetReference",
-									"parameters": {
-										"File": {
-											"value": "@pipeline().parameters.file",
-											"type": "Expression"
-										},
-										"Directory": {
-											"value": "@pipeline().parameters.directory",
-											"type": "Expression"
-										}
-									}
-								},
-								"firstRowOnly": false
 							}
 						}
 					]
