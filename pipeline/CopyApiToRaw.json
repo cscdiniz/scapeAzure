@@ -227,7 +227,7 @@
 									},
 									"RecordsInserted": {
 										"value": {
-											"value": "@activity('Copy API to Raw').output.insert",
+											"value": "@activity('Copy API to Raw').output.rowsCopied",
 											"type": "Expression"
 										},
 										"type": "Int32"
