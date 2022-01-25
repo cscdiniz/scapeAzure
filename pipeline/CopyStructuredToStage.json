@@ -168,6 +168,71 @@
 								},
 								"firstRowOnly": true
 							}
+						},
+						{
+							"name": "UpdateCurrentExecutionLog_Structured",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "CopyToSTG",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[procfwk].[SetLogPipelineFilePathName]",
+								"storedProcedureParameters": {
+									"ADLContainer": {
+										"value": "-",
+										"type": "String"
+									},
+									"ExecutionId": {
+										"value": {
+											"value": "@pipeline().parameters.ExecutionId",
+											"type": "Expression"
+										},
+										"type": "Guid"
+									},
+									"FilePath": {
+										"value": "N/A",
+										"type": "String"
+									},
+									"PipelineId": {
+										"value": {
+											"value": "@pipeline().parameters.PipelineId",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"RecordsInserted": {
+										"value": {
+											"value": "@activity('CopyToSTG').output.rowsCopied",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									},
+									"StageId": {
+										"value": {
+											"value": "@pipeline().parameters.StageId",
+											"type": "Expression"
+										},
+										"type": "Int32"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "SupportDatabase",
+								"type": "LinkedServiceReference"
+							}
 						}
 					]
 				}
