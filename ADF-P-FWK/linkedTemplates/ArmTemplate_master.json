@@ -51,9 +51,9 @@
 			"type": "string",
 			"defaultValue": "cristiane.diniz@scape.com"
 		},
-		"BuildingData_properties_01-Grandparent_parameters_BatchName": {
+		"Bed Room Building_properties_01-Grandparent_parameters_BatchName": {
 			"type": "string",
-			"defaultValue": "BuildingData"
+			"defaultValue": "Bed Room Building"
 		},
 		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
 			"type": "string",
@@ -137,8 +137,8 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"BuildingData_properties_01-Grandparent_parameters_BatchName": {
-						"value": "[parameters('BuildingData_properties_01-Grandparent_parameters_BatchName')]"
+					"Bed Room Building_properties_01-Grandparent_parameters_BatchName": {
+						"value": "[parameters('Bed Room Building_properties_01-Grandparent_parameters_BatchName')]"
 					},
 					"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
 						"value": "[parameters('Rent Roll_properties_01-Grandparent_parameters_BatchName')]"
