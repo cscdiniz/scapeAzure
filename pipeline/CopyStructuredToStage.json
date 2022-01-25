@@ -170,7 +170,7 @@
 							}
 						},
 						{
-							"name": "UpdateCurrentExecutionLog_Structured",
+							"name": "UpdateCurrentExecutionLog_Stage",
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
