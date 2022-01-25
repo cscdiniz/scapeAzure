@@ -72,6 +72,47 @@
 						"type": "DatasetReference"
 					}
 				}
+			},
+			{
+				"name": "UpdateCurrentExecutionLog",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Synapse - SP",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[procfwk].[SetLogPipelineLastStatusCheck]",
+					"storedProcedureParameters": {
+						"ExecutionId": {
+							"value": "",
+							"type": "Guid"
+						},
+						"PipelineId": {
+							"value": "",
+							"type": "Int32"
+						},
+						"StageId": {
+							"value": "",
+							"type": "Int32"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "SupportDatabase",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"parameters": {
