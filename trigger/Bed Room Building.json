@@ -1,5 +1,5 @@
 {
-	"name": "BuildingData",
+	"name": "Bed Room Building",
 	"properties": {
 		"annotations": [],
 		"runtimeState": "Started",
@@ -10,7 +10,7 @@
 					"type": "PipelineReference"
 				},
 				"parameters": {
-					"BatchName": "BuildingData"
+					"BatchName": "Bed Room Building"
 				}
 			}
 		],
