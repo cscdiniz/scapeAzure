@@ -34,6 +34,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
@@ -141,14 +142,7 @@
 						{
 							"name": "GetColumnMapping",
 							"type": "Lookup",
-							"dependsOn": [
-								{
-									"activity": "Raw UpdateCurrentExecutionLog",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -178,60 +172,6 @@
 									"type": "DatasetReference"
 								},
 								"firstRowOnly": true
-							}
-						},
-						{
-							"name": "Raw UpdateCurrentExecutionLog",
-							"type": "SqlServerStoredProcedure",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"storedProcedureName": "[procfwk].[SetLogPipelineFilePathName]",
-								"storedProcedureParameters": {
-									"ADLContainer": {
-										"value": "R",
-										"type": "String"
-									},
-									"ExecutionId": {
-										"value": {
-											"value": "@pipeline().parameters.executionId",
-											"type": "Expression"
-										},
-										"type": "Guid"
-									},
-									"FilePath": {
-										"value": {
-											"value": "@pipeline().parameters.RawFile",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"PipelineId": {
-										"value": {
-											"value": "@pipeline().parameters.PipelineId",
-											"type": "Expression"
-										},
-										"type": "Int32"
-									},
-									"StageId": {
-										"value": {
-											"value": "@pipeline().parameters.StageId",
-											"type": "Expression"
-										},
-										"type": "Int32"
-									}
-								}
-							},
-							"linkedServiceName": {
-								"referenceName": "SupportDatabase",
-								"type": "LinkedServiceReference"
 							}
 						}
 					]

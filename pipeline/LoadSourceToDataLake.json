@@ -180,6 +180,18 @@
 									"directory": {
 										"value": "@variables('Object')",
 										"type": "Expression"
+									},
+									"executionId": {
+										"value": "@pipeline().parameters.executionId",
+										"type": "Expression"
+									},
+									"PipelineId": {
+										"value": "@pipeline().parameters.pipelineId",
+										"type": "Expression"
+									},
+									"StageId": {
+										"value": "@pipeline().parameters.stageId",
+										"type": "Expression"
 									}
 								}
 							}
