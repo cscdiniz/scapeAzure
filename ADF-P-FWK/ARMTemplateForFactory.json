@@ -3405,14 +3405,7 @@
 								{
 									"name": "Raw UpdateCurrentExecutionLog",
 									"type": "SqlServerStoredProcedure",
-									"dependsOn": [
-										{
-											"activity": "Lookup1",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
+									"dependsOn": [],
 									"policy": {
 										"timeout": "7.00:00:00",
 										"retry": 0,
@@ -3458,7 +3451,7 @@
 											},
 											"RecordsInserted": {
 												"value": {
-													"value": "@activity('Lookup1').output.count",
+													"value": "@activity('Copy API to Raw').output.rowsCopied",
 													"type": "Expression"
 												},
 												"type": "Int32"
@@ -3468,47 +3461,6 @@
 									"linkedServiceName": {
 										"referenceName": "SupportDatabase",
 										"type": "LinkedServiceReference"
-									}
-								},
-								{
-									"name": "Lookup1",
-									"type": "Lookup",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "JsonSource",
-											"storeSettings": {
-												"type": "AzureBlobFSReadSettings",
-												"recursive": true,
-												"enablePartitionDiscovery": false
-											},
-											"formatSettings": {
-												"type": "JsonReadSettings"
-											}
-										},
-										"dataset": {
-											"referenceName": "Raw",
-											"type": "DatasetReference",
-											"parameters": {
-												"File": {
-													"value": "@pipeline().parameters.file",
-													"type": "Expression"
-												},
-												"Directory": {
-													"value": "@pipeline().parameters.directory",
-													"type": "Expression"
-												}
-											}
-										},
-										"firstRowOnly": false
 									}
 								}
 							]
@@ -3729,78 +3681,13 @@
 										},
 										"firstRowOnly": true
 									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Structured File Created",
-						"type": "GetMetadata",
-						"dependsOn": [
-							{
-								"activity": "If Condition1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "ADLStructured",
-								"type": "DatasetReference",
-								"parameters": {
-									"File": {
-										"value": "@pipeline().parameters.StructuredFile",
-										"type": "Expression"
-									},
-									"Directory": {
-										"value": "@pipeline().parameters.StructuredDirectory",
-										"type": "Expression"
-									}
-								}
-							},
-							"fieldList": [
-								"exists"
-							],
-							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							}
-						}
-					},
-					{
-						"name": "If Condition2",
-						"type": "IfCondition",
-						"dependsOn": [
-							{
-								"activity": "Structured File Created",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@bool(activity('Structured File Created').output.exists)",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
+								},
 								{
-									"name": "UpdateCurrentExecutionLog_Structured",
+									"name": "UpdateCurrentExecutionLog_Structured_copy1",
 									"type": "SqlServerStoredProcedure",
 									"dependsOn": [
 										{
-											"activity": "Lookup1",
+											"activity": "Copy Raw To Structured",
 											"dependencyConditions": [
 												"Succeeded"
 											]
@@ -3844,7 +3731,7 @@
 											},
 											"RecordsInserted": {
 												"value": {
-													"value": "@activity('Lookup1').output.count",
+													"value": "@activity('Copy Raw To Structured').output.rowsCopied",
 													"type": "Expression"
 												},
 												"type": "Int32"
@@ -3861,44 +3748,6 @@
 									"linkedServiceName": {
 										"referenceName": "SupportDatabase",
 										"type": "LinkedServiceReference"
-									}
-								},
-								{
-									"name": "Lookup1",
-									"type": "Lookup",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "ParquetSource",
-											"storeSettings": {
-												"type": "AzureBlobFSReadSettings",
-												"recursive": true,
-												"enablePartitionDiscovery": false
-											}
-										},
-										"dataset": {
-											"referenceName": "ADLStructured",
-											"type": "DatasetReference",
-											"parameters": {
-												"File": {
-													"value": "@pipeline().parameters.StructuredFile",
-													"type": "Expression"
-												},
-												"Directory": {
-													"value": "@pipeline().parameters.StructuredDirectory",
-													"type": "Expression"
-												}
-											}
-										},
-										"firstRowOnly": false
 									}
 								}
 							]
