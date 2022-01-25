@@ -887,6 +887,63 @@
 								"parameters": {}
 							}
 						}
+					},
+					{
+						"name": "UpdateCurrentExecutionLog",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Synapse - SP",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[procfwk].[SetLogPipelineRecordsAffected]",
+							"storedProcedureParameters": {
+								"ExecutionId": {
+									"value": {
+										"value": "@pipeline().parameters.executionId",
+										"type": "Expression"
+									},
+									"type": "Guid"
+								},
+								"PipelineId": {
+									"value": {
+										"value": "@pipeline().parameters.PipelineId",
+										"type": "Expression"
+									},
+									"type": "Int32"
+								},
+								"RecordsAffected": {
+									"value": {
+										"value": "@activity('Synapse - SP').output.value",
+										"type": "Expression"
+									},
+									"type": "Int32"
+								},
+								"StageId": {
+									"value": {
+										"value": "@pipeline().parameters.StageId",
+										"type": "Expression"
+									},
+									"type": "Int32"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "SupportDatabase",
+							"type": "LinkedServiceReference"
+						}
 					}
 				],
 				"policy": {
@@ -896,6 +953,15 @@
 				"parameters": {
 					"StoredProcedure": {
 						"type": "string"
+					},
+					"executionId": {
+						"type": "string"
+					},
+					"PipelineId": {
+						"type": "int"
+					},
+					"StageId": {
+						"type": "int"
 					}
 				},
 				"annotations": []
