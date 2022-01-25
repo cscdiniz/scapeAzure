@@ -118,6 +118,15 @@
 		"parameters": {
 			"StoredProcedure": {
 				"type": "string"
+			},
+			"ExecutionId": {
+				"type": "string"
+			},
+			"PipelineId": {
+				"type": "int"
+			},
+			"StageId": {
+				"type": "int"
 			}
 		},
 		"annotations": []
