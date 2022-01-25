@@ -1077,7 +1077,7 @@
 							"storedProcedureParameters": {
 								"ExecutionDate": {
 									"value": {
-										"value": "@pipeline().TriggerTime",
+										"value": "@convertTimeZone(pipeline().TriggerTime, 'AUS Eastern Standard Time','yyyy-MM-ddTHH:mm:ssZ')",
 										"type": "Expression"
 									},
 									"type": "DateTime"
