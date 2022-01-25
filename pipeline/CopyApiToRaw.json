@@ -206,7 +206,7 @@
 									},
 									"FilePath": {
 										"value": {
-											"value": "@pipeline().parameters.RawFile",
+											"value": "@pipeline().parameters.file",
 											"type": "Expression"
 										},
 										"type": "String"
