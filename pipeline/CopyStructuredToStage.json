@@ -58,64 +58,6 @@
 					},
 					"ifTrueActivities": [
 						{
-							"name": "UpdateCurrentExecutionLog_Structured",
-							"type": "SqlServerStoredProcedure",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"storedProcedureName": "[procfwk].[SetLogPipelineFilePathName]",
-								"storedProcedureParameters": {
-									"ADLContainer": {
-										"value": "S",
-										"type": "String"
-									},
-									"ExecutionId": {
-										"value": {
-											"value": "@pipeline().parameters.ExecutionId",
-											"type": "Expression"
-										},
-										"type": "Guid"
-									},
-									"FilePath": {
-										"value": {
-											"value": "@pipeline().parameters.StructuredFile",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"PipelineId": {
-										"value": {
-											"value": "@pipeline().parameters.PipelineId",
-											"type": "Expression"
-										},
-										"type": "Int32"
-									},
-									"RecordsInserted": {
-										"value": "",
-										"type": "Int32"
-									},
-									"StageId": {
-										"value": {
-											"value": "@pipeline().parameters.StageId",
-											"type": "Expression"
-										},
-										"type": "Int32"
-									}
-								}
-							},
-							"linkedServiceName": {
-								"referenceName": "SupportDatabase",
-								"type": "LinkedServiceReference"
-							}
-						},
-						{
 							"name": "CopyToSTG",
 							"type": "Copy",
 							"dependsOn": [
@@ -195,14 +137,7 @@
 						{
 							"name": "GetColumnMapping",
 							"type": "Lookup",
-							"dependsOn": [
-								{
-									"activity": "UpdateCurrentExecutionLog_Structured",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"dependsOn": [],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
