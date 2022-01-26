@@ -20,7 +20,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"Directory": {
-								"value": "@variables('Directory')",
+								"value": "@variables('Path')",
 								"type": "Expression"
 							}
 						}
