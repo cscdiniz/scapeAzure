@@ -20,7 +20,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"Directory": {
-								"value": "Booking",
+								"value": "'Booking'",
 								"type": "Expression"
 							}
 						}
@@ -118,6 +118,12 @@
 				}
 			}
 		],
+		"variables": {
+			"Directory": {
+				"type": "String",
+				"defaultValue": "Booking"
+			}
+		},
 		"annotations": []
 	}
 }
