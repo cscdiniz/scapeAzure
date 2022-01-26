@@ -145,7 +145,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"dataflow": {
-									"referenceName": "DF_ADL2STRUCTUREDToCURRENT_InitialLoad",
+									"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
 									"type": "DataFlowReference",
 									"parameters": {
 										"File": {

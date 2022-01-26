@@ -1,5 +1,5 @@
 {
-	"name": "DF_ADL2STRUCTUREDToCURRENT_InitialLoad",
+	"name": "DF_ADL2STRUCTUREDToCURRENT",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
