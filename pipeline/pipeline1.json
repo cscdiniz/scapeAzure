@@ -75,7 +75,7 @@
 											"type": "Expression"
 										},
 										"Directory": {
-											"value": "'@{Booking}'",
+											"value": "'@{'Booking'}'",
 											"type": "Expression"
 										},
 										"ExecutionDate": {
@@ -90,7 +90,7 @@
 									"datasetParameters": {
 										"StructuredFile": {
 											"File": "@item().name",
-											"Directory": "Booking"
+											"Directory": "'Booking'"
 										},
 										"Current": {
 											"TableName": {
