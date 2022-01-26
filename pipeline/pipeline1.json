@@ -66,6 +66,24 @@
 								"dataflow": {
 									"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
 									"type": "DataFlowReference",
+									"parameters": {
+										"File": {
+											"value": "'@{item().name}'",
+											"type": "Expression"
+										},
+										"Directory": {
+											"value": "'@{Booking}'",
+											"type": "Expression"
+										},
+										"ExecutionDate": {
+											"value": "@convertTimeZone(pipeline().TriggerTime, 'AUS Eastern Standard Time','yyyy-MM-ddTHH:mm:ssZ')",
+											"type": "Expression"
+										},
+										"RunId": {
+											"value": "'@{-1}'",
+											"type": "Expression"
+										}
+									},
 									"datasetParameters": {
 										"StructuredFile": {
 											"File": "@item().name",
@@ -78,6 +96,13 @@
 											}
 										}
 									}
+								},
+								"staging": {
+									"linkedService": {
+										"referenceName": "Blob_dimport",
+										"type": "LinkedServiceReference"
+									},
+									"folderPath": "staging"
 								},
 								"compute": {
 									"coreCount": 8,
