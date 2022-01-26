@@ -27,10 +27,7 @@
 								"value": "'@{Booking}'",
 								"type": "Expression"
 							},
-							"ExecutionDate": {
-								"value": "@formatDateTime(convertTimeZone(pipeline().TriggerTime, 'UTC' ,'AUS Eastern Standard Time'),'yyyy-MM-ddTHH:mm:ssZ')\n\n",
-								"type": "Expression"
-							},
+							"ExecutionDate": "currentTimestamp()",
 							"RunId": {
 								"value": "'@{-1}'",
 								"type": "Expression"
