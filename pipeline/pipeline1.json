@@ -22,7 +22,10 @@
 							"Directory": "Booking"
 						}
 					},
-					"fieldList": [],
+					"fieldList": [
+						"childItems",
+						"itemName"
+					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
 						"enablePartitionDiscovery": false
