@@ -175,7 +175,7 @@
 									"type": "DataFlowReference",
 									"parameters": {
 										"File": {
-											"value": "'@{item().value}'",
+											"value": "'@{item()}'",
 											"type": "Expression"
 										},
 										"Directory": {
@@ -194,7 +194,7 @@
 									"datasetParameters": {
 										"StructuredFile": {
 											"File": {
-												"value": "@item().value",
+												"value": "@item()",
 												"type": "Expression"
 											},
 											"Directory": {
