@@ -90,6 +90,9 @@
 			},
 			"pathfile": {
 				"type": "string"
+			},
+			"Folders": {
+				"type": "array"
 			}
 		},
 		"variables": {
