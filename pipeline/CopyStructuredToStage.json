@@ -58,123 +58,11 @@
 					},
 					"ifTrueActivities": [
 						{
-							"name": "CopyToSTG",
-							"type": "Copy",
-							"dependsOn": [
-								{
-									"activity": "GetColumnMapping",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "ParquetSource",
-									"storeSettings": {
-										"type": "AzureBlobFSReadSettings",
-										"recursive": true,
-										"enablePartitionDiscovery": false
-									}
-								},
-								"sink": {
-									"type": "SqlDWSink",
-									"preCopyScript": {
-										"value": "@{concat('TRUNCATE TABLE stg.', pipeline().parameters.StructuredDirectory)}",
-										"type": "Expression"
-									},
-									"allowPolyBase": true,
-									"polyBaseSettings": {
-										"rejectValue": 0,
-										"rejectType": "value",
-										"useTypeDefault": true
-									},
-									"disableMetricsCollection": false
-								},
-								"enableStaging": false,
-								"translator": {
-									"value": "@json(activity('GetColumnMapping').output.firstRow.json_output)",
-									"type": "Expression"
-								}
-							},
-							"inputs": [
-								{
-									"referenceName": "ADLStructured",
-									"type": "DatasetReference",
-									"parameters": {
-										"File": {
-											"value": "@pipeline().parameters.StructuredFile",
-											"type": "Expression"
-										},
-										"Directory": {
-											"value": "@pipeline().parameters.StructuredDirectory",
-											"type": "Expression"
-										}
-									}
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "AzureSynapseAnalytics",
-									"type": "DatasetReference",
-									"parameters": {
-										"TableName": {
-											"value": "@pipeline().parameters.StructuredDirectory",
-											"type": "Expression"
-										}
-									}
-								}
-							]
-						},
-						{
-							"name": "GetColumnMapping",
-							"type": "Lookup",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "7.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "AzureSqlSource",
-									"sqlReaderStoredProcedureName": "[dbo].[sp_getColumnMapping]",
-									"storedProcedureParameters": {
-										"table_name": {
-											"type": "String",
-											"value": {
-												"value": "@pipeline().parameters.StructuredDirectory",
-												"type": "Expression"
-											}
-										}
-									},
-									"queryTimeout": "02:00:00",
-									"partitionOption": "None"
-								},
-								"dataset": {
-									"referenceName": "GetSetMetadata",
-									"type": "DatasetReference"
-								},
-								"firstRowOnly": true
-							}
-						},
-						{
 							"name": "UpdateCurrentExecutionLog_Stage",
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
-									"activity": "CopyToSTG",
+									"activity": "Data flow1",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -232,6 +120,73 @@
 							"linkedServiceName": {
 								"referenceName": "SupportDatabase",
 								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Data flow1",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "1.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
+									"type": "DataFlowReference",
+									"parameters": {
+										"File": {
+											"value": "'@{pipeline().parameters.StructuredFile}'",
+											"type": "Expression"
+										},
+										"Directory": {
+											"value": "'@{pipeline().parameters.StructuredDirectory}'",
+											"type": "Expression"
+										},
+										"ExecutionDate": {
+											"value": "@convertTimeZone(pipeline().TriggerTime, 'AUS Eastern Standard Time','yyyy-MM-ddTHH:mm:ssZ')",
+											"type": "Expression"
+										},
+										"RunId": {
+											"value": "'@{pipeline().parameters.ExecutionId}'",
+											"type": "Expression"
+										}
+									},
+									"datasetParameters": {
+										"StructuredFile": {
+											"File": {
+												"value": "@pipeline().parameters.StructuredFile",
+												"type": "Expression"
+											},
+											"Directory": {
+												"value": "@pipeline().parameters.StructuredDirectory",
+												"type": "Expression"
+											}
+										},
+										"Current": {
+											"TableName": {
+												"value": "@pipeline().parameters.StructuredDirectory",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"staging": {
+									"linkedService": {
+										"referenceName": "Blob_dimport",
+										"type": "LinkedServiceReference"
+									},
+									"folderPath": "staging"
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
 							}
 						}
 					]
