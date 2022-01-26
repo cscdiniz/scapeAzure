@@ -27,7 +27,6 @@
 								"value": "'@{Booking}'",
 								"type": "Expression"
 							},
-							"ExecutionDate": "currentTimestamp()",
 							"RunId": {
 								"value": "'@{-1}'",
 								"type": "Expression"

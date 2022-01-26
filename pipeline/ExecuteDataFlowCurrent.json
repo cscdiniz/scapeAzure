@@ -156,10 +156,6 @@
 											"value": "'@{pipeline().parameters.StructuredDirectory}'",
 											"type": "Expression"
 										},
-										"ExecutionDate": {
-											"value": "toTimestamp(left('@{pipeline().TriggerTime}', 23), 'yyyy-MM-dd\\'T\\'HH:mm:ss.SSS')",
-											"type": "Expression"
-										},
 										"RunId": {
 											"value": "'@{pipeline().parameters.ExecutionId}'",
 											"type": "Expression"
