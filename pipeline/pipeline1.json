@@ -106,7 +106,10 @@
 										"value": "@activity('Get Metadata2').output.childItems",
 										"type": "Expression"
 									},
-									"pathfile": "@concat(variables('Path'), item(), '/')"
+									"pathfile": {
+										"value": "@concat(variables('FileName'), item(), '/')",
+										"type": "Expression"
+									}
 								}
 							}
 						}
