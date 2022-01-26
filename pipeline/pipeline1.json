@@ -139,7 +139,7 @@
 									"type": "DataFlowReference",
 									"parameters": {
 										"File": {
-											"value": "'@{item().name}'",
+											"value": "'@{item().value}'",
 											"type": "Expression"
 										},
 										"Directory": {
@@ -158,10 +158,13 @@
 									"datasetParameters": {
 										"StructuredFile": {
 											"File": {
-												"value": "@item().name",
+												"value": "@item().value",
 												"type": "Expression"
 											},
-											"Directory": "'Booking'"
+											"Directory": {
+												"value": "@variables('Directory')",
+												"type": "Expression"
+											}
 										},
 										"Current": {
 											"TableName": {
