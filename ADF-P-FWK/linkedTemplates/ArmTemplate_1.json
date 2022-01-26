@@ -3034,7 +3034,7 @@
 											},
 											"RecordsInserted": {
 												"value": {
-													"value": "@activity('Data flow1').output.runStatus.metrics.sink1.rowsWritten",
+													"value": "@activity('Data flow1').output.runStatus.metrics.Current.rowsWritten",
 													"type": "Expression"
 												},
 												"type": "Int32"
