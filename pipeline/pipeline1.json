@@ -87,13 +87,10 @@
 							"userProperties": [],
 							"typeProperties": {
 								"dataset": {
-									"referenceName": "ADLCurrent_Directory",
+									"referenceName": "ADLStructured_Directory",
 									"type": "DatasetReference",
 									"parameters": {
-										"Directory": {
-											"value": "@concat(variables('Path'), item(), '/')",
-											"type": "Expression"
-										}
+										"Directory": "@concat(variables('Path'), item(), '/')"
 									}
 								},
 								"fieldList": [
