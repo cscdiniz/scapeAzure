@@ -134,6 +134,10 @@
 		"variables": {
 			"Directory": {
 				"type": "String",
+				"defaultValue": "Booking"
+			},
+			"Path": {
+				"type": "String",
 				"defaultValue": "/Booking/"
 			}
 		},
