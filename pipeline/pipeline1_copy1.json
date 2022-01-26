@@ -31,7 +31,7 @@
 									"type": "DataFlowReference",
 									"parameters": {
 										"File": {
-											"value": "'@{concat(pipeline().parameters.pathfile, item())}'",
+											"value": "'@{concat(pipeline().parameters.pathfile, item().name)}'",
 											"type": "Expression"
 										},
 										"Directory": {
@@ -50,7 +50,7 @@
 									"datasetParameters": {
 										"StructuredFile": {
 											"File": {
-												"value": "@concat(pipeline().parameters.pathfile, item())",
+												"value": "@concat(pipeline().parameters.pathfile, item().name)",
 												"type": "Expression"
 											},
 											"Directory": {
