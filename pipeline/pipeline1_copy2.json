@@ -20,7 +20,7 @@
 						"type": "DataFlowReference",
 						"parameters": {
 							"FilePath": {
-								"value": "'@{'EntryDetail/2022/01/*/*.parquet'}'",
+								"value": "'@{'RoomBase/2022/01/*/*.parquet'}'",
 								"type": "Expression"
 							}
 						},
@@ -51,11 +51,11 @@
 		"variables": {
 			"Directory": {
 				"type": "String",
-				"defaultValue": "EntryDetail"
+				"defaultValue": "RoomBase"
 			},
 			"Path": {
 				"type": "String",
-				"defaultValue": "EntryDetail/2022/01/"
+				"defaultValue": "RoomBase/2022/01/"
 			},
 			"FileName": {
 				"type": "String",
