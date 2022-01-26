@@ -3941,10 +3941,6 @@
 													"value": "'@{pipeline().parameters.StructuredDirectory}'",
 													"type": "Expression"
 												},
-												"ExecutionDate": {
-													"value": "@convertTimeZone(pipeline().TriggerTime, 'AUS Eastern Standard Time','yyyy-MM-ddTHH:mm:ssZ')",
-													"type": "Expression"
-												},
 												"RunId": {
 													"value": "'@{pipeline().parameters.ExecutionId}'",
 													"type": "Expression"
@@ -4251,10 +4247,6 @@
 												},
 												"Directory": {
 													"value": "'@{pipeline().parameters.StructuredDirectory}'",
-													"type": "Expression"
-												},
-												"ExecutionDate": {
-													"value": "toTimestamp(left('@{pipeline().TriggerTime}', 23), 'yyyy-MM-dd\\'T\\'HH:mm:ss.SSS')",
 													"type": "Expression"
 												},
 												"RunId": {
@@ -5220,10 +5212,6 @@
 													"value": "@variables('Directory')",
 													"type": "Expression"
 												},
-												"ExecutionDate": {
-													"value": "@formatDateTime(convertTimeZone(pipeline().TriggerTime, 'UTC' ,'AUS Eastern Standard Time'),'yyyy-MM-ddTHH:mm:ssZ')\n\n",
-													"type": "Expression"
-												},
 												"RunId": {
 													"value": "-1",
 													"type": "Expression"
@@ -6094,7 +6082,7 @@
 							"name": "AlterRow1"
 						}
 					],
-					"script": "parameters{\n\tFile as string,\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> StructuredFile\nStructuredFile derive(HASH = sha2(512,columns()),\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns alterRow(upsertIf(true())) ~> AlterRow1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: true,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['HASH'],\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current"
+					"script": "parameters{\n\tFile as string,\n\tDirectory as string,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> StructuredFile\nStructuredFile derive(HASH = sha2(512,columns()),\n\t\tExecutionCreatedDate = currentTimestamp(),\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns alterRow(upsertIf(true())) ~> AlterRow1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: true,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['HASH'],\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current"
 				}
 			},
 			"dependsOn": [
@@ -6159,6 +6147,107 @@
 				"[concat(variables('factoryId'), '/datasets/ADLStructured')]",
 				"[concat(variables('factoryId'), '/datasets/AzureSynapseAnalytics')]",
 				"[concat(variables('factoryId'), '/datasets/GetSetMetadata')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1_copy2')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1_copy1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
+								"type": "DataFlowReference",
+								"parameters": {
+									"File": {
+										"value": "'@{2022/01/10/Booking_37D6A823-FBFD-4F7D-91E6-166093199974.parquet}'",
+										"type": "Expression"
+									},
+									"Directory": {
+										"value": "'@{Booking}'",
+										"type": "Expression"
+									},
+									"RunId": {
+										"value": "'@{-1}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"StructuredFile": {
+										"File": {
+											"value": "2022/01/10/Booking_37D6A823-FBFD-4F7D-91E6-166093199974.parquet",
+											"type": "Expression"
+										},
+										"Directory": {
+											"value": "Booking",
+											"type": "Expression"
+										}
+									},
+									"Current": {
+										"TableName": {
+											"value": "Booking",
+											"type": "Expression"
+										}
+									}
+								}
+							},
+							"staging": {
+								"linkedService": {
+									"referenceName": "Blob_dimport",
+									"type": "LinkedServiceReference"
+								},
+								"folderPath": "staging"
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"pathfile": {
+						"type": "string",
+						"defaultValue": "2022/01/10/"
+					}
+				},
+				"variables": {
+					"Directory": {
+						"type": "String",
+						"defaultValue": "Booking"
+					},
+					"Path": {
+						"type": "String",
+						"defaultValue": "Booking/2022/01/"
+					},
+					"FileName": {
+						"type": "String",
+						"defaultValue": "2022/01/10/"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_ADL2STRUCTUREDToCURRENT')]",
+				"[concat(variables('factoryId'), '/linkedServices/Blob_dimport')]"
 			]
 		}
 	]
