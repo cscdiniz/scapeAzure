@@ -45,11 +45,11 @@
 									"type": "DataFlowReference",
 									"parameters": {
 										"File": {
-											"value": "'@{concat(pipeline().parameters.pathfile, item().name)}'",
+											"value": "@concat(pipeline().parameters.pathfile, item().name)",
 											"type": "Expression"
 										},
 										"Directory": {
-											"value": "'@{variables('Directory')}'",
+											"value": "@variables('Directory')",
 											"type": "Expression"
 										},
 										"ExecutionDate": {
