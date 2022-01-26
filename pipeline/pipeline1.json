@@ -91,7 +91,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"File": {
-											"value": "@concat(variables('Path'), item())",
+											"value": "@concat(variables('FileName'), item(), '/')",
 											"type": "Expression"
 										},
 										"Directory": {
