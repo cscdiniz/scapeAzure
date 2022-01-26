@@ -37,87 +37,32 @@
 			{
 				"name": "ForEach1",
 				"type": "ForEach",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "ForEach2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('Get Metadata1').output.childItems",
+						"value": "@variables('Folders')",
 						"type": "Expression"
 					},
 					"activities": [
 						{
-							"name": "If Condition1",
-							"type": "IfCondition",
+							"name": "Append variable2",
+							"type": "AppendVariable",
 							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
-								"expression": {
-									"value": "@equals(item().type, 'File')",
+								"variableName": "Files",
+								"value": {
+									"value": "@concat(variables('FileName') , '/', item().name)",
 									"type": "Expression"
-								},
-								"ifTrueActivities": [
-									{
-										"name": "Data flow1",
-										"type": "ExecuteDataFlow",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "1.00:00:00",
-											"retry": 0,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": false
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"dataflow": {
-												"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
-												"type": "DataFlowReference",
-												"parameters": {
-													"File": {
-														"value": "'@{item().name}'",
-														"type": "Expression"
-													},
-													"Directory": {
-														"value": "'@{variables('Directory')}'",
-														"type": "Expression"
-													},
-													"ExecutionDate": {
-														"value": "@convertTimeZone(pipeline().TriggerTime, 'AUS Eastern Standard Time','yyyy-MM-ddTHH:mm:ssZ')",
-														"type": "Expression"
-													},
-													"RunId": {
-														"value": "'@{-1}'",
-														"type": "Expression"
-													}
-												},
-												"datasetParameters": {
-													"StructuredFile": {
-														"File": "@item().name",
-														"Directory": "'Booking'"
-													},
-													"Current": {
-														"TableName": {
-															"value": "@item().name",
-															"type": "Expression"
-														}
-													}
-												}
-											},
-											"staging": {
-												"linkedService": {
-													"referenceName": "Blob_dimport",
-													"type": "LinkedServiceReference"
-												},
-												"folderPath": "staging"
-											},
-											"compute": {
-												"coreCount": 8,
-												"computeType": "General"
-											},
-											"traceLevel": "Fine"
-										}
-									}
-								]
+								}
 							}
 						}
 					]
@@ -152,6 +97,84 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "ForEach3",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"activities": [
+						{
+							"name": "Data flow1",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "1.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
+									"type": "DataFlowReference",
+									"parameters": {
+										"File": {
+											"value": "'@{item().name}'",
+											"type": "Expression"
+										},
+										"Directory": {
+											"value": "'@{variables('Directory')}'",
+											"type": "Expression"
+										},
+										"ExecutionDate": {
+											"value": "@convertTimeZone(pipeline().TriggerTime, 'AUS Eastern Standard Time','yyyy-MM-ddTHH:mm:ssZ')",
+											"type": "Expression"
+										},
+										"RunId": {
+											"value": "'@{-1}'",
+											"type": "Expression"
+										}
+									},
+									"datasetParameters": {
+										"StructuredFile": {
+											"File": "@item().name",
+											"Directory": "'Booking'"
+										},
+										"Current": {
+											"TableName": {
+												"value": "@item().name",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"staging": {
+									"linkedService": {
+										"referenceName": "Blob_dimport",
+										"type": "LinkedServiceReference"
+									},
+									"folderPath": "staging"
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						}
+					]
+				}
 			}
 		],
 		"variables": {
@@ -168,6 +191,9 @@
 				"defaultValue": "2022/01/"
 			},
 			"Folders": {
+				"type": "Array"
+			},
+			"Files": {
 				"type": "Array"
 			}
 		},
