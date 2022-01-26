@@ -10,7 +10,7 @@
 				"typeProperties": {
 					"variableName": "date",
 					"value": {
-						"value": "@convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time')",
+						"value": "@convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time')",
 						"type": "Expression"
 					}
 				}
