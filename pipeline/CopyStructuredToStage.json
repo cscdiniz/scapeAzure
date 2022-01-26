@@ -140,7 +140,7 @@
 									"type": "DataFlowReference",
 									"parameters": {
 										"FilePath": {
-											"value": "'@{concat(pipeline().parameters.StructuredDirectory, '/', formatDateTime(pipeline().parameters.Lastexecution,'yyyy'), '/', formatDateTime(pipeline().parameters.Lastexecution,'MM'), '/', formatDateTime(pipeline().parameters.Lastexecution,'dd'), '/*.parquet')}'",
+											"value": "'@{concat(pipeline().parameters.StructuredDirectory, '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'yyyy'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'MM'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'dd'), '/*.parquet')}'",
 											"type": "Expression"
 										}
 									},
