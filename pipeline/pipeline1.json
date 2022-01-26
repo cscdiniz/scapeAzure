@@ -54,26 +54,6 @@
 					},
 					"activities": [
 						{
-							"name": "Append variable2",
-							"type": "AppendVariable",
-							"dependsOn": [
-								{
-									"activity": "Get Metadata2",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
-							"userProperties": [],
-							"typeProperties": {
-								"variableName": "Files",
-								"value": {
-									"value": "@activity('Get Metadata2').output.childItems",
-									"type": "Expression"
-								}
-							}
-						},
-						{
 							"name": "Get Metadata2",
 							"type": "GetMetadata",
 							"dependsOn": [],
@@ -99,6 +79,32 @@
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
 									"enablePartitionDiscovery": false
+								}
+							}
+						},
+						{
+							"name": "Execute Pipeline1",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "Get Metadata2",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pipeline1_copy1",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"files": {
+										"value": "@activity('Get Metadata2').output.childItems",
+										"type": "Expression"
+									}
 								}
 							}
 						}
