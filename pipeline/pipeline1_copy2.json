@@ -20,11 +20,11 @@
 						"type": "DataFlowReference",
 						"parameters": {
 							"File": {
-								"value": "@concat(pipeline().parameters.pathfile, 'Booking_37D6A823-FBFD-4F7D-91E6-166093199974.parquet')",
+								"value": "'@{concat(pipeline().parameters.pathfile, 'Booking_37D6A823-FBFD-4F7D-91E6-166093199974.parquet')}'",
 								"type": "Expression"
 							},
 							"Directory": {
-								"value": "@variables('Directory')",
+								"value": "'@{variables('Directory')}'",
 								"type": "Expression"
 							},
 							"ExecutionDate": {
@@ -32,7 +32,7 @@
 								"type": "Expression"
 							},
 							"RunId": {
-								"value": "-1",
+								"value": "'@{-1}'",
 								"type": "Expression"
 							}
 						},
