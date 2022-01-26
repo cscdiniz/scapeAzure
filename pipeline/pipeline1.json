@@ -56,13 +56,56 @@
 						{
 							"name": "Append variable2",
 							"type": "AppendVariable",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Get Metadata2",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"userProperties": [],
 							"typeProperties": {
 								"variableName": "Files",
 								"value": {
-									"value": "@concat(variables('FileName') , '/', item())",
+									"value": "@activity('Get Metadata2').output.childItems",
 									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Get Metadata2",
+							"type": "GetMetadata",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "ADLStructured",
+									"type": "DatasetReference",
+									"parameters": {
+										"File": {
+											"value": "@concat(variables('Path'), item())",
+											"type": "Expression"
+										},
+										"Directory": {
+											"value": "@variables('Directory')",
+											"type": "Expression"
+										}
+									}
+								},
+								"fieldList": [
+									"childItems"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"enablePartitionDiscovery": false
 								}
 							}
 						}
