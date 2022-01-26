@@ -71,14 +71,9 @@
 			}
 		],
 		"parameters": {
-			"files": {
-				"type": "object"
-			},
 			"pathfile": {
-				"type": "string"
-			},
-			"FolderPath": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "2022/01/10/"
 			}
 		},
 		"variables": {
