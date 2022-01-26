@@ -18,20 +18,6 @@
 					"dataflow": {
 						"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
 						"type": "DataFlowReference",
-						"parameters": {
-							"File": {
-								"value": "'@{variables('FileName')}'",
-								"type": "Expression"
-							},
-							"Directory": {
-								"value": "'@{variables('Directory')}'",
-								"type": "Expression"
-							},
-							"RunId": {
-								"value": "'@{pipeline().RunId}'",
-								"type": "Expression"
-							}
-						},
 						"datasetParameters": {
 							"Current": {
 								"TableName": {
