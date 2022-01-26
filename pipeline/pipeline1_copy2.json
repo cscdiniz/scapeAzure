@@ -48,12 +48,6 @@
 				}
 			}
 		],
-		"parameters": {
-			"pathfile": {
-				"type": "string",
-				"defaultValue": "2022/01/10/"
-			}
-		},
 		"variables": {
 			"Directory": {
 				"type": "String",
