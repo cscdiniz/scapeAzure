@@ -26,7 +26,6 @@
 						}
 					},
 					"fieldList": [
-						"childItems",
 						"itemName"
 					],
 					"storeSettings": {
@@ -135,7 +134,7 @@
 		"variables": {
 			"Directory": {
 				"type": "String",
-				"defaultValue": "Booking"
+				"defaultValue": "/Booking/"
 			}
 		},
 		"annotations": []
