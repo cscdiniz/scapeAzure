@@ -21,6 +21,45 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Raw')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "adldaprod",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"File": {
+						"type": "string",
+						"defaultValue": "entry/2022/01/05"
+					},
+					"Directory": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().File",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().Directory",
+							"type": "Expression"
+						},
+						"fileSystem": "raw"
+					},
+					"encodingName": "US-ASCII"
+				},
+				"schema": {}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/SourceSystemMetadata')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -341,7 +380,9 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Raw')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/CopyRawToStructured')]",
@@ -623,7 +664,9 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Raw')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/LoadDataLakeToDW')]",
@@ -3279,7 +3322,7 @@
 									"typeProperties": {
 										"variableName": "RawFilePath",
 										"value": {
-											"value": "@concat(formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'yyyy'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'MM'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'dd'), '/', string(item().SinkFileName),'_', pipeline().parameters.executionId, '.', string(item().SinkFileFormat))",
+											"value": "@concat(formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'yyyy'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'MM'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'dd'), '/', string(item().SinkFileName),'_', pipeline().parameters.executionId, '.', string(item().SinkFileFormat))",
 											"type": "Expression"
 										}
 									}
