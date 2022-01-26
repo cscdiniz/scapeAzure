@@ -5,11 +5,18 @@
 			{
 				"name": "ForEach3",
 				"type": "ForEach",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Get Metadata2_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@pipeline().parameters.files.value",
+						"value": "@activity('Get Metadata2_copy1').output.childItems",
 						"type": "Expression"
 					},
 					"activities": [
@@ -31,7 +38,7 @@
 									"type": "DataFlowReference",
 									"parameters": {
 										"File": {
-											"value": "'@{concat(pipeline().parameters.pathfile, item().name.value)}'",
+											"value": "'@{concat(pipeline().parameters.pathfile, item().name)}'",
 											"type": "Expression"
 										},
 										"Directory": {
@@ -50,7 +57,7 @@
 									"datasetParameters": {
 										"StructuredFile": {
 											"File": {
-												"value": "@concat(pipeline().parameters.pathfile, item().name.value)",
+												"value": "@concat(pipeline().parameters.pathfile, item().name)",
 												"type": "Expression"
 											},
 											"Directory": {
@@ -82,6 +89,38 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "Get Metadata2_copy1",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ADLStructured_Directory",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": {
+								"value": "@concat(variables('Path'), pipeline().parameters.FolderPath , '/')",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					}
+				}
 			}
 		],
 		"parameters": {
@@ -91,8 +130,8 @@
 			"pathfile": {
 				"type": "string"
 			},
-			"Folders": {
-				"type": "array"
+			"FolderPath": {
+				"type": "string"
 			}
 		},
 		"variables": {
