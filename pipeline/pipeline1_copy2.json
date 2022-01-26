@@ -20,15 +20,15 @@
 						"type": "DataFlowReference",
 						"parameters": {
 							"File": {
-								"value": "'@{2022}'",
+								"value": "'@{variables('FileName')}'",
 								"type": "Expression"
 							},
 							"Directory": {
-								"value": "'@{Booking}'",
+								"value": "'@{variables('Directory')}'",
 								"type": "Expression"
 							},
 							"RunId": {
-								"value": "'@{-1}'",
+								"value": "'@{pipeline().RunId}'",
 								"type": "Expression"
 							}
 						},
