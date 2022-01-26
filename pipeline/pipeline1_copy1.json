@@ -58,16 +58,6 @@
 										}
 									},
 									"datasetParameters": {
-										"StructuredFile": {
-											"File": {
-												"value": "@concat(pipeline().parameters.pathfile, item().name)",
-												"type": "Expression"
-											},
-											"Directory": {
-												"value": "@variables('Directory')",
-												"type": "Expression"
-											}
-										},
 										"Current": {
 											"TableName": {
 												"value": "@variables('Directory')",
