@@ -899,13 +899,6 @@
 								"type": "LinkedServiceReference"
 							},
 							"name": "StructuredFile"
-						},
-						{
-							"dataset": {
-								"referenceName": "GetSetMetadata",
-								"type": "DatasetReference"
-							},
-							"name": "source1"
 						}
 					],
 					"sinks": [
@@ -915,9 +908,6 @@
 								"type": "DatasetReference"
 							},
 							"name": "Current"
-						},
-						{
-							"name": "LastExecution"
 						}
 					],
 					"transformations": [
@@ -928,7 +918,7 @@
 							"name": "AlterRow1"
 						}
 					],
-					"script": "parameters{\n\tFilePath as string ('BookingCustomField/2022/01/*/*.parquet'),\n\tPipelineId as integer,\n\tStageId as integer\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: true,\n\tformat: 'parquet',\n\tfileSystem: 'structured',\n\tcompressionCodec: 'snappy',\n\twildcardPaths:[($FilePath)],\n\tmode: 'read') ~> StructuredFile\nsource(output(\n\t\tLastExecution as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tquery: (concat('SELECT  [LastExecution] FROM [procfwk].[GetMaxExecutionLogDateTime] WHERE  [StageId] = ', toString($StageId), ' AND [PipelineId] = ', toString($PipelineId))),\n\tformat: 'query') ~> source1\nStructuredFile derive(HASH = sha2(512,columns()),\n\t\tExecutionCreatedDate = fromUTC(currentTimestamp(), 'AUS Eastern Standard Time'),\n\t\tExecutionLogId = '-1') ~> AddColumns\nAddColumns alterRow(upsertIf(true())) ~> AlterRow1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: true,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['HASH'],\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current\nsource1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tstore: 'cache',\n\tformat: 'inline',\n\toutput: true,\n\tsaveOrder: 1) ~> LastExecution"
+					"script": "parameters{\n\tFilePath as string ('BookingCustomField/2022/01/*/*.parquet')\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: true,\n\tformat: 'parquet',\n\tfileSystem: 'structured',\n\tcompressionCodec: 'snappy',\n\twildcardPaths:[($FilePath)],\n\tmode: 'read') ~> StructuredFile\nStructuredFile derive(HASH = sha2(512,columns()),\n\t\tExecutionCreatedDate = fromUTC(currentTimestamp(), 'AUS Eastern Standard Time'),\n\t\tExecutionLogId = '-1') ~> AddColumns\nAddColumns alterRow(upsertIf(true())) ~> AlterRow1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: true,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['HASH'],\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current"
 				}
 			},
 			"dependsOn": []
@@ -3083,26 +3073,16 @@
 												"FilePath": {
 													"value": "'@{concat(pipeline().parameters.StructuredDirectory, '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'yyyy'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'MM'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'dd'), '/*.parquet')\r\n}'",
 													"type": "Expression"
-												},
-												"PipelineId": {
-													"value": "@pipeline().parameters.PipelineId",
-													"type": "Expression"
-												},
-												"StageId": {
-													"value": "@pipeline().parameters.StageId",
-													"type": "Expression"
 												}
 											},
 											"datasetParameters": {
 												"StructuredFile": {},
-												"source1": {},
 												"Current": {
 													"TableName": {
 														"value": "@pipeline().parameters.StructuredDirectory",
 														"type": "Expression"
 													}
-												},
-												"LastExecution": {}
+												}
 											}
 										},
 										"staging": {
