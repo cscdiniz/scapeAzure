@@ -19,7 +19,10 @@
 						"referenceName": "ADLStructured_Directory",
 						"type": "DatasetReference",
 						"parameters": {
-							"Directory": "Booking"
+							"Directory": {
+								"value": "Booking",
+								"type": "Expression"
+							}
 						}
 					},
 					"fieldList": [
