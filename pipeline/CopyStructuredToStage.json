@@ -139,30 +139,9 @@
 									"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
 									"type": "DataFlowReference",
 									"parameters": {
-										"File": {
-											"value": "'@{pipeline().parameters.StructuredFile}'",
-											"type": "Expression"
-										},
-										"Directory": {
-											"value": "'@{pipeline().parameters.StructuredDirectory}'",
-											"type": "Expression"
-										},
-										"RunId": {
-											"value": "'@{pipeline().parameters.ExecutionId}'",
-											"type": "Expression"
-										}
+										"FilePath": "'BookingCustomField/2022/01/*/*.parquet'"
 									},
 									"datasetParameters": {
-										"StructuredFile": {
-											"File": {
-												"value": "@pipeline().parameters.StructuredFile",
-												"type": "Expression"
-											},
-											"Directory": {
-												"value": "@pipeline().parameters.StructuredDirectory",
-												"type": "Expression"
-											}
-										},
 										"Current": {
 											"TableName": {
 												"value": "@pipeline().parameters.StructuredDirectory",
