@@ -39,7 +39,7 @@
 											"type": "Expression"
 										},
 										"ExecutionDate": {
-											"value": "@convertTimeZone(pipeline().TriggerTime, 'AUS Eastern Standard Time','yyyy-MM-ddTHH:mm:ssZ')",
+											"value": "@formatDateTime(convertTimeZone(pipeline().TriggerTime, 'UTC' ,'AUS Eastern Standard Time'),'yyyy-MM-ddTHH:mm:ssZ')\n\n",
 											"type": "Expression"
 										},
 										"RunId": {
