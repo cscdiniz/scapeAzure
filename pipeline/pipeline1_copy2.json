@@ -20,7 +20,7 @@
 						"type": "DataFlowReference",
 						"parameters": {
 							"FilePath": {
-								"value": "'@{'BookingCustomField/2022/01/*/*.parquet'}'",
+								"value": "'@{'EntryDetail/2022/01/*/*.parquet'}'",
 								"type": "Expression"
 							}
 						},
@@ -51,11 +51,11 @@
 		"variables": {
 			"Directory": {
 				"type": "String",
-				"defaultValue": "BookingCustomField"
+				"defaultValue": "EntryDetail"
 			},
 			"Path": {
 				"type": "String",
-				"defaultValue": "BookingCustomField/2022/01/"
+				"defaultValue": "EntryDetail/2022/01/"
 			},
 			"FileName": {
 				"type": "String",
