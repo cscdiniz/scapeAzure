@@ -1,0 +1,106 @@
+{
+	"name": "pipeline1_copy2",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data flow1_copy1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
+						"type": "DataFlowReference",
+						"parameters": {
+							"File": {
+								"value": "@concat(pipeline().parameters.pathfile, 'Booking_37D6A823-FBFD-4F7D-91E6-166093199974.parquet')",
+								"type": "Expression"
+							},
+							"Directory": {
+								"value": "@variables('Directory')",
+								"type": "Expression"
+							},
+							"ExecutionDate": {
+								"value": "@formatDateTime(convertTimeZone(pipeline().TriggerTime, 'UTC' ,'AUS Eastern Standard Time'),'yyyy-MM-ddTHH:mm:ssZ')\n\n",
+								"type": "Expression"
+							},
+							"RunId": {
+								"value": "-1",
+								"type": "Expression"
+							}
+						},
+						"datasetParameters": {
+							"StructuredFile": {
+								"File": {
+									"value": "@concat(pipeline().parameters.pathfile, 'Booking_37D6A823-FBFD-4F7D-91E6-166093199974.parquet')",
+									"type": "Expression"
+								},
+								"Directory": {
+									"value": "@variables('Directory')",
+									"type": "Expression"
+								}
+							},
+							"Current": {
+								"TableName": {
+									"value": "@variables('Directory')",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"staging": {
+						"linkedService": {
+							"referenceName": "Blob_dimport",
+							"type": "LinkedServiceReference"
+						},
+						"folderPath": "staging"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"parameters": {
+			"files": {
+				"type": "object"
+			},
+			"pathfile": {
+				"type": "string"
+			},
+			"FolderPath": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"Directory": {
+				"type": "String",
+				"defaultValue": "Booking"
+			},
+			"Path": {
+				"type": "String",
+				"defaultValue": "Booking/2022/01/"
+			},
+			"FileName": {
+				"type": "String",
+				"defaultValue": "2022/01/"
+			},
+			"Folders": {
+				"type": "Array"
+			},
+			"Files": {
+				"type": "Array"
+			}
+		},
+		"annotations": []
+	}
+}
