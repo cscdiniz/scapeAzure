@@ -108,7 +108,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"Directory": {
-								"value": "@concat(variables('Path'), pipeline().parameters.FolderPath , '/')",
+								"value": "@concat(variables('Path'),pipeline().parameters.FolderPath, '/')",
 								"type": "Expression"
 							}
 						}
