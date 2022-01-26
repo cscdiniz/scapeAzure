@@ -147,10 +147,6 @@
 											"value": "'@{pipeline().parameters.StructuredDirectory}'",
 											"type": "Expression"
 										},
-										"ExecutionDate": {
-											"value": "@convertTimeZone(pipeline().TriggerTime, 'AUS Eastern Standard Time','yyyy-MM-ddTHH:mm:ssZ')",
-											"type": "Expression"
-										},
 										"RunId": {
 											"value": "'@{pipeline().parameters.ExecutionId}'",
 											"type": "Expression"
