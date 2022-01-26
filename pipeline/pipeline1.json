@@ -40,7 +40,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Filter1",
+						"activity": "Get Metadata1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -54,90 +54,81 @@
 					},
 					"activities": [
 						{
-							"name": "Data flow1",
-							"type": "ExecuteDataFlow",
+							"name": "If Condition1",
+							"type": "IfCondition",
 							"dependsOn": [],
-							"policy": {
-								"timeout": "1.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
 							"userProperties": [],
 							"typeProperties": {
-								"dataflow": {
-									"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
-									"type": "DataFlowReference",
-									"parameters": {
-										"File": {
-											"value": "'@{item().name}'",
-											"type": "Expression"
+								"expression": {
+									"value": "@equals(item().type, 'File')",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Data flow1",
+										"type": "ExecuteDataFlow",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "1.00:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
 										},
-										"Directory": {
-											"value": "'@{variables('Directory')}'",
-											"type": "Expression"
-										},
-										"ExecutionDate": {
-											"value": "@convertTimeZone(pipeline().TriggerTime, 'AUS Eastern Standard Time','yyyy-MM-ddTHH:mm:ssZ')",
-											"type": "Expression"
-										},
-										"RunId": {
-											"value": "'@{-1}'",
-											"type": "Expression"
-										}
-									},
-									"datasetParameters": {
-										"StructuredFile": {
-											"File": "@item().name",
-											"Directory": "'Booking'"
-										},
-										"Current": {
-											"TableName": {
-												"value": "@item().name",
-												"type": "Expression"
-											}
+										"userProperties": [],
+										"typeProperties": {
+											"dataflow": {
+												"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
+												"type": "DataFlowReference",
+												"parameters": {
+													"File": {
+														"value": "'@{item().name}'",
+														"type": "Expression"
+													},
+													"Directory": {
+														"value": "'@{variables('Directory')}'",
+														"type": "Expression"
+													},
+													"ExecutionDate": {
+														"value": "@convertTimeZone(pipeline().TriggerTime, 'AUS Eastern Standard Time','yyyy-MM-ddTHH:mm:ssZ')",
+														"type": "Expression"
+													},
+													"RunId": {
+														"value": "'@{-1}'",
+														"type": "Expression"
+													}
+												},
+												"datasetParameters": {
+													"StructuredFile": {
+														"File": "@item().name",
+														"Directory": "'Booking'"
+													},
+													"Current": {
+														"TableName": {
+															"value": "@item().name",
+															"type": "Expression"
+														}
+													}
+												}
+											},
+											"staging": {
+												"linkedService": {
+													"referenceName": "Blob_dimport",
+													"type": "LinkedServiceReference"
+												},
+												"folderPath": "staging"
+											},
+											"compute": {
+												"coreCount": 8,
+												"computeType": "General"
+											},
+											"traceLevel": "Fine"
 										}
 									}
-								},
-								"staging": {
-									"linkedService": {
-										"referenceName": "Blob_dimport",
-										"type": "LinkedServiceReference"
-									},
-									"folderPath": "staging"
-								},
-								"compute": {
-									"coreCount": 8,
-									"computeType": "General"
-								},
-								"traceLevel": "Fine"
+								]
 							}
 						}
 					]
-				}
-			},
-			{
-				"name": "Filter1",
-				"type": "Filter",
-				"dependsOn": [
-					{
-						"activity": "Get Metadata1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"items": {
-						"value": "@activity('Get Metadata1').output.itemType",
-						"type": "Expression"
-					},
-					"condition": {
-						"value": "@equals(activity('Get Metadata1').output.itemType, 'File' )",
-						"type": "Expression"
-					}
 				}
 			}
 		],
