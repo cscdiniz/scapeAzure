@@ -626,274 +626,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/CopyStructuredToStage')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Structured File Created",
-						"type": "GetMetadata",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "ADLStructured",
-								"type": "DatasetReference",
-								"parameters": {
-									"File": {
-										"value": "@pipeline().parameters.StructuredFile",
-										"type": "Expression"
-									},
-									"Directory": {
-										"value": "@pipeline().parameters.StructuredDirectory",
-										"type": "Expression"
-									}
-								}
-							},
-							"fieldList": [
-								"exists"
-							],
-							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							}
-						}
-					},
-					{
-						"name": "If Condition1",
-						"type": "IfCondition",
-						"dependsOn": [
-							{
-								"activity": "Structured File Created",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@bool(activity('Structured File Created').output.exists)",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "CopyToSTG",
-									"type": "Copy",
-									"dependsOn": [
-										{
-											"activity": "GetColumnMapping",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "ParquetSource",
-											"storeSettings": {
-												"type": "AzureBlobFSReadSettings",
-												"recursive": true,
-												"enablePartitionDiscovery": false
-											}
-										},
-										"sink": {
-											"type": "SqlDWSink",
-											"preCopyScript": {
-												"value": "@{concat('TRUNCATE TABLE stg.', pipeline().parameters.StructuredDirectory)}",
-												"type": "Expression"
-											},
-											"allowPolyBase": true,
-											"polyBaseSettings": {
-												"rejectValue": 0,
-												"rejectType": "value",
-												"useTypeDefault": true
-											},
-											"disableMetricsCollection": false
-										},
-										"enableStaging": false,
-										"translator": {
-											"value": "@json(activity('GetColumnMapping').output.firstRow.json_output)",
-											"type": "Expression"
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "ADLStructured",
-											"type": "DatasetReference",
-											"parameters": {
-												"File": {
-													"value": "@pipeline().parameters.StructuredFile",
-													"type": "Expression"
-												},
-												"Directory": {
-													"value": "@pipeline().parameters.StructuredDirectory",
-													"type": "Expression"
-												}
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "AzureSynapseAnalytics",
-											"type": "DatasetReference",
-											"parameters": {
-												"TableName": {
-													"value": "@pipeline().parameters.StructuredDirectory",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								},
-								{
-									"name": "GetColumnMapping",
-									"type": "Lookup",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderStoredProcedureName": "[[dbo].[sp_getColumnMapping]",
-											"storedProcedureParameters": {
-												"table_name": {
-													"type": "String",
-													"value": {
-														"value": "@pipeline().parameters.StructuredDirectory",
-														"type": "Expression"
-													}
-												}
-											},
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"dataset": {
-											"referenceName": "GetSetMetadata",
-											"type": "DatasetReference",
-											"parameters": {}
-										},
-										"firstRowOnly": true
-									}
-								},
-								{
-									"name": "UpdateCurrentExecutionLog_Stage",
-									"type": "SqlServerStoredProcedure",
-									"dependsOn": [
-										{
-											"activity": "CopyToSTG",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "7.00:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"storedProcedureName": "[[procfwk].[SetLogPipelineFilePathName]",
-										"storedProcedureParameters": {
-											"ADLContainer": {
-												"value": "-",
-												"type": "String"
-											},
-											"ExecutionId": {
-												"value": {
-													"value": "@pipeline().parameters.ExecutionId",
-													"type": "Expression"
-												},
-												"type": "Guid"
-											},
-											"FilePath": {
-												"value": "N/A",
-												"type": "String"
-											},
-											"PipelineId": {
-												"value": {
-													"value": "@pipeline().parameters.PipelineId",
-													"type": "Expression"
-												},
-												"type": "Int32"
-											},
-											"RecordsInserted": {
-												"value": {
-													"value": "@activity('CopyToSTG').output.rowsCopied",
-													"type": "Expression"
-												},
-												"type": "Int32"
-											},
-											"StageId": {
-												"value": {
-													"value": "@pipeline().parameters.StageId",
-													"type": "Expression"
-												},
-												"type": "Int32"
-											}
-										}
-									},
-									"linkedServiceName": {
-										"referenceName": "SupportDatabase",
-										"type": "LinkedServiceReference"
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"StructuredFile": {
-						"type": "string"
-					},
-					"StructuredDirectory": {
-						"type": "string"
-					},
-					"ExecutionId": {
-						"type": "string"
-					},
-					"PipelineId": {
-						"type": "string"
-					},
-					"StageId": {
-						"type": "string"
-					}
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/LoadDataLakeToDW')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1143,7 +875,7 @@
 							"name": "AlterRow1"
 						}
 					],
-					"script": "parameters{\n\tFile as string,\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> StructuredFile\nStructuredFile derive(HASH = sha2(columns()),\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns alterRow(upsertIf(true())) ~> AlterRow1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: true,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['HASH'],\n\tformat: 'table',\n\tstaged: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current"
+					"script": "parameters{\n\tFile as string,\n\tDirectory as string,\n\tExecutionDate as timestamp,\n\tRunId as string\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> StructuredFile\nStructuredFile derive(HASH = sha2(columns()),\n\t\tExecutionCreatedDate = $ExecutionDate,\n\t\tExecutionLogId = $RunId) ~> AddColumns\nAddColumns alterRow(upsertIf(true())) ~> AlterRow1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: true,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['HASH'],\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current"
 				}
 			},
 			"dependsOn": []
@@ -3153,6 +2885,230 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/CopyStructuredToStage')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Structured File Created",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ADLStructured",
+								"type": "DatasetReference",
+								"parameters": {
+									"File": {
+										"value": "@pipeline().parameters.StructuredFile",
+										"type": "Expression"
+									},
+									"Directory": {
+										"value": "@pipeline().parameters.StructuredDirectory",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"exists"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "If Condition1",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Structured File Created",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@bool(activity('Structured File Created').output.exists)",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "UpdateCurrentExecutionLog_Stage",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Data flow1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[procfwk].[SetLogPipelineFilePathName]",
+										"storedProcedureParameters": {
+											"ADLContainer": {
+												"value": "-",
+												"type": "String"
+											},
+											"ExecutionId": {
+												"value": {
+													"value": "@pipeline().parameters.ExecutionId",
+													"type": "Expression"
+												},
+												"type": "Guid"
+											},
+											"FilePath": {
+												"value": "N/A",
+												"type": "String"
+											},
+											"PipelineId": {
+												"value": {
+													"value": "@pipeline().parameters.PipelineId",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"RecordsInserted": {
+												"value": {
+													"value": "@activity('Data flow1').output.runStatus.metrics.sink1.rowsWritten",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											},
+											"StageId": {
+												"value": {
+													"value": "@pipeline().parameters.StageId",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "SupportDatabase",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Data flow1",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "1.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
+											"type": "DataFlowReference",
+											"parameters": {
+												"File": {
+													"value": "'@{pipeline().parameters.StructuredFile}'",
+													"type": "Expression"
+												},
+												"Directory": {
+													"value": "'@{pipeline().parameters.StructuredDirectory}'",
+													"type": "Expression"
+												},
+												"ExecutionDate": {
+													"value": "@convertTimeZone(pipeline().TriggerTime, 'AUS Eastern Standard Time','yyyy-MM-ddTHH:mm:ssZ')",
+													"type": "Expression"
+												},
+												"RunId": {
+													"value": "'@{pipeline().parameters.ExecutionId}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"StructuredFile": {
+													"File": {
+														"value": "@pipeline().parameters.StructuredFile",
+														"type": "Expression"
+													},
+													"Directory": {
+														"value": "@pipeline().parameters.StructuredDirectory",
+														"type": "Expression"
+													}
+												},
+												"Current": {
+													"TableName": {
+														"value": "@pipeline().parameters.StructuredDirectory",
+														"type": "Expression"
+													}
+												}
+											}
+										},
+										"staging": {
+											"linkedService": {
+												"referenceName": "Blob_dimport",
+												"type": "LinkedServiceReference"
+											},
+											"folderPath": "staging"
+										},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"StructuredFile": {
+						"type": "string"
+					},
+					"StructuredDirectory": {
+						"type": "string"
+					},
+					"ExecutionId": {
+						"type": "string"
+					},
+					"PipelineId": {
+						"type": "string"
+					},
+					"StageId": {
+						"type": "string"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_ADL2STRUCTUREDToCURRENT')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ExecuteDataFlowCurrent')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -3505,6 +3461,304 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/DF_ADL2STRUCTUREDToCURRENT_CDC')]",
 				"[concat(variables('factoryId'), '/dataflows/DF_ADL2STRUCTUREDToCURRENT')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1_copy1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEach3",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata2_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata2_copy1').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Data flow1",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "1.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
+											"type": "DataFlowReference",
+											"parameters": {
+												"File": {
+													"value": "'@{concat(pipeline().parameters.pathfile, item().name)}'",
+													"type": "Expression"
+												},
+												"Directory": {
+													"value": "'@{variables('Directory')}'",
+													"type": "Expression"
+												},
+												"ExecutionDate": {
+													"value": "@formatDateTime(convertTimeZone(pipeline().TriggerTime, 'UTC' ,'AUS Eastern Standard Time'),'yyyy-MM-ddTHH:mm:ssZ')\n\n",
+													"type": "Expression"
+												},
+												"RunId": {
+													"value": "'@{-1}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"StructuredFile": {
+													"File": {
+														"value": "@concat(pipeline().parameters.pathfile, item().name)",
+														"type": "Expression"
+													},
+													"Directory": {
+														"value": "@variables('Directory')",
+														"type": "Expression"
+													}
+												},
+												"Current": {
+													"TableName": {
+														"value": "@variables('Directory')",
+														"type": "Expression"
+													}
+												}
+											}
+										},
+										"staging": {
+											"linkedService": {
+												"referenceName": "Blob_dimport",
+												"type": "LinkedServiceReference"
+											},
+											"folderPath": "staging"
+										},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Get Metadata2_copy1",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ADLStructured_Directory",
+								"type": "DatasetReference",
+								"parameters": {
+									"Directory": {
+										"value": "@concat(variables('Path'),pipeline().parameters.FolderPath, '/')",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"files": {
+						"type": "object"
+					},
+					"pathfile": {
+						"type": "string"
+					},
+					"FolderPath": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"Directory": {
+						"type": "String",
+						"defaultValue": "Booking"
+					},
+					"Path": {
+						"type": "String",
+						"defaultValue": "Booking/2022/01/"
+					},
+					"FileName": {
+						"type": "String",
+						"defaultValue": "2022/01/"
+					},
+					"Folders": {
+						"type": "Array"
+					},
+					"Files": {
+						"type": "Array"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_ADL2STRUCTUREDToCURRENT')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/03-Child')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "procfwk child pipeline used to execute Worker pipelines within a given execution stage. This pipeline will be called once for each stage, then execute all Workers in parallel.",
+				"activities": [
+					{
+						"name": "Get Pipelines",
+						"description": "Returns all pipelines from the metadata to be executed within a given processing stage.",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:10:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderStoredProcedureName": "[[procfwk].[GetPipelinesInStage]",
+								"storedProcedureParameters": {
+									"ExecutionId": {
+										"type": "Guid",
+										"value": {
+											"value": "@pipeline().parameters.ExecutionId",
+											"type": "Expression"
+										}
+									},
+									"StageId": {
+										"type": "Int32",
+										"value": {
+											"value": "@pipeline().parameters.StageId",
+											"type": "Expression"
+										}
+									}
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "GetSetMetadata",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "Execute Pipelines",
+						"description": "Second level ForEach to run in parallel all pipelines within the stage. Items for iteration passed from the Get Pipelines lookup activity.",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Pipelines",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Pipelines').output.value",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 50,
+							"activities": [
+								{
+									"name": "Worker Pipeline Executor",
+									"description": "Run the required worker pipeline and wait for its completion. Update metadata once done.",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "04-Infant",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"executionId": {
+												"value": "@pipeline().parameters.ExecutionId",
+												"type": "Expression"
+											},
+											"stageId": {
+												"value": "@pipeline().parameters.StageId",
+												"type": "Expression"
+											},
+											"pipelineId": {
+												"value": "@item().PipelineId",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"StageId": {
+						"type": "int"
+					},
+					"ExecutionId": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "_ProcFwk"
+				},
+				"annotations": [
+					"procfwk",
+					"Child"
+				],
+				"lastPublishTime": "2021-12-28T23:57:22Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/04-Infant')]"
 			]
 		},
 		{
@@ -3880,19 +4134,17 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/03-Child')]",
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"description": "procfwk child pipeline used to execute Worker pipelines within a given execution stage. This pipeline will be called once for each stage, then execute all Workers in parallel.",
 				"activities": [
 					{
-						"name": "Get Pipelines",
-						"description": "Returns all pipelines from the metadata to be executed within a given processing stage.",
-						"type": "Lookup",
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
 						"dependsOn": [],
 						"policy": {
-							"timeout": "0.00:10:00",
+							"timeout": "7.00:00:00",
 							"retry": 0,
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false,
@@ -3900,43 +4152,33 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderStoredProcedureName": "[[procfwk].[GetPipelinesInStage]",
-								"storedProcedureParameters": {
-									"ExecutionId": {
-										"type": "Guid",
-										"value": {
-											"value": "@pipeline().parameters.ExecutionId",
-											"type": "Expression"
-										}
-									},
-									"StageId": {
-										"type": "Int32",
-										"value": {
-											"value": "@pipeline().parameters.StageId",
-											"type": "Expression"
-										}
-									}
-								},
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
 							"dataset": {
-								"referenceName": "GetSetMetadata",
+								"referenceName": "ADLStructured_Directory",
 								"type": "DatasetReference",
-								"parameters": {}
+								"parameters": {
+									"Directory": {
+										"value": "@variables('Path')",
+										"type": "Expression"
+									}
+								}
 							},
-							"firstRowOnly": false
+							"fieldList": [
+								"itemName",
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
 						}
 					},
 					{
-						"name": "Execute Pipelines",
-						"description": "Second level ForEach to run in parallel all pipelines within the stage. Items for iteration passed from the Get Pipelines lookup activity.",
+						"name": "ForEach2",
 						"type": "ForEach",
 						"dependsOn": [
 							{
-								"activity": "Get Pipelines",
+								"activity": "Get Metadata1",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -3945,35 +4187,30 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Get Pipelines').output.value",
+								"value": "@activity('Get Metadata1').output.childItems",
 								"type": "Expression"
 							},
 							"isSequential": false,
-							"batchCount": 50,
 							"activities": [
 								{
-									"name": "Worker Pipeline Executor",
-									"description": "Run the required worker pipeline and wait for its completion. Update metadata once done.",
+									"name": "Execute Pipeline1_copy1",
 									"type": "ExecutePipeline",
 									"dependsOn": [],
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "04-Infant",
+											"referenceName": "pipeline1_copy1",
 											"type": "PipelineReference"
 										},
 										"waitOnCompletion": true,
 										"parameters": {
-											"executionId": {
-												"value": "@pipeline().parameters.ExecutionId",
+											"files": "A",
+											"pathfile": {
+												"value": "@concat(variables('FileName'), item(), '/')",
 												"type": "Expression"
 											},
-											"stageId": {
-												"value": "@pipeline().parameters.StageId",
-												"type": "Expression"
-											},
-											"pipelineId": {
-												"value": "@item().PipelineId",
+											"FolderPath": {
+												"value": "item().name",
 												"type": "Expression"
 											}
 										}
@@ -3987,25 +4224,30 @@
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
 				},
-				"parameters": {
-					"StageId": {
-						"type": "int"
+				"variables": {
+					"Directory": {
+						"type": "String",
+						"defaultValue": "Booking"
 					},
-					"ExecutionId": {
-						"type": "string"
+					"Path": {
+						"type": "String",
+						"defaultValue": "Booking/2022/01/"
+					},
+					"FileName": {
+						"type": "String",
+						"defaultValue": "2022/01/"
+					},
+					"Folders": {
+						"type": "Array"
+					},
+					"Files": {
+						"type": "Array"
 					}
 				},
-				"folder": {
-					"name": "_ProcFwk"
-				},
-				"annotations": [
-					"procfwk",
-					"Child"
-				],
-				"lastPublishTime": "2021-12-28T23:57:22Z"
+				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/04-Infant')]"
+				"[concat(variables('factoryId'), '/pipelines/pipeline1_copy1')]"
 			]
 		},
 		{

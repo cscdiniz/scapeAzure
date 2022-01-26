@@ -569,7 +569,7 @@
 				"schema": [],
 				"typeProperties": {
 					"schema": {
-						"value": "stg",
+						"value": "hst",
 						"type": "Expression"
 					},
 					"table": {
