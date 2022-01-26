@@ -3071,7 +3071,7 @@
 											"type": "DataFlowReference",
 											"parameters": {
 												"FilePath": {
-													"value": "'@{concat(pipeline().parameters.StructuredDirectory, '/', formatDateTime(pipeline().parameters.Lastexecution,'yyyy'), '/', formatDateTime(pipeline().parameters.Lastexecution,'MM'), '/', formatDateTime(pipeline().parameters.Lastexecution,'dd'), '/*.parquet')}'",
+													"value": "'@{concat(pipeline().parameters.StructuredDirectory, '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'yyyy'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'MM'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'dd'), '/*.parquet')}'",
 													"type": "Expression"
 												}
 											},
@@ -3325,7 +3325,7 @@
 									"typeProperties": {
 										"variableName": "StructuredFilePath",
 										"value": {
-											"value": "@concat(formatDateTime(utcnow(),'yyyy'), '/', formatDateTime(utcnow(),'MM'), '/', formatDateTime(utcnow(),'dd'), '/', string(item().SinkFileName),'_', pipeline().parameters.executionId, '.parquet')",
+											"value": "@concat(formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'yyyy'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'MM'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'dd'), '/', string(item().SinkFileName),'_', pipeline().parameters.executionId, '.parquet')",
 											"type": "Expression"
 										}
 									}
