@@ -20,11 +20,11 @@
 						"type": "DataFlowReference",
 						"parameters": {
 							"File": {
-								"value": "'@{concat(pipeline().parameters.pathfile, 'Booking_37D6A823-FBFD-4F7D-91E6-166093199974.parquet')}'",
+								"value": "'@{2022/01/10/Booking_37D6A823-FBFD-4F7D-91E6-166093199974.parquet}'",
 								"type": "Expression"
 							},
 							"Directory": {
-								"value": "'@{variables('Directory')}'",
+								"value": "'@{Booking}'",
 								"type": "Expression"
 							},
 							"ExecutionDate": {
@@ -39,17 +39,17 @@
 						"datasetParameters": {
 							"StructuredFile": {
 								"File": {
-									"value": "@concat(pipeline().parameters.pathfile, 'Booking_37D6A823-FBFD-4F7D-91E6-166093199974.parquet')",
+									"value": "2022/01/10/Booking_37D6A823-FBFD-4F7D-91E6-166093199974.parquet",
 									"type": "Expression"
 								},
 								"Directory": {
-									"value": "@variables('Directory')",
+									"value": "Booking",
 									"type": "Expression"
 								}
 							},
 							"Current": {
 								"TableName": {
-									"value": "@variables('Directory')",
+									"value": "Booking",
 									"type": "Expression"
 								}
 							}
