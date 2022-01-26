@@ -52,6 +52,7 @@
 						"value": "@variables('Folders')",
 						"type": "Expression"
 					},
+					"isSequential": false,
 					"activities": [
 						{
 							"name": "Get Metadata2",
@@ -140,94 +141,6 @@
 									"value": "@item().name",
 									"type": "Expression"
 								}
-							}
-						}
-					]
-				}
-			},
-			{
-				"name": "ForEach3",
-				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "ForEach1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"items": {
-						"value": "@variables('Files')",
-						"type": "Expression"
-					},
-					"activities": [
-						{
-							"name": "Data flow1",
-							"type": "ExecuteDataFlow",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "1.00:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"dataflow": {
-									"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
-									"type": "DataFlowReference",
-									"parameters": {
-										"File": {
-											"value": "'@{item()}'",
-											"type": "Expression"
-										},
-										"Directory": {
-											"value": "'@{variables('Directory')}'",
-											"type": "Expression"
-										},
-										"ExecutionDate": {
-											"value": "@convertTimeZone(pipeline().TriggerTime, 'AUS Eastern Standard Time','yyyy-MM-ddTHH:mm:ssZ')",
-											"type": "Expression"
-										},
-										"RunId": {
-											"value": "'@{-1}'",
-											"type": "Expression"
-										}
-									},
-									"datasetParameters": {
-										"StructuredFile": {
-											"File": {
-												"value": "@item()",
-												"type": "Expression"
-											},
-											"Directory": {
-												"value": "@variables('Directory')",
-												"type": "Expression"
-											}
-										},
-										"Current": {
-											"TableName": {
-												"value": "@variables('Directory')",
-												"type": "Expression"
-											}
-										}
-									}
-								},
-								"staging": {
-									"linkedService": {
-										"referenceName": "Blob_dimport",
-										"type": "LinkedServiceReference"
-									},
-									"folderPath": "staging"
-								},
-								"compute": {
-									"coreCount": 8,
-									"computeType": "General"
-								},
-								"traceLevel": "Fine"
 							}
 						}
 					]
