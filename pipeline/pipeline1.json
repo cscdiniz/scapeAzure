@@ -95,20 +95,6 @@
 								"dataflow": {
 									"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
 									"type": "DataFlowReference",
-									"parameters": {
-										"File": {
-											"value": "@concat(variables('Path'), item().name, '/*.parquet')",
-											"type": "Expression"
-										},
-										"Directory": {
-											"value": "@variables('Directory')",
-											"type": "Expression"
-										},
-										"RunId": {
-											"value": "-1",
-											"type": "Expression"
-										}
-									},
 									"datasetParameters": {
 										"Current": {
 											"TableName": {
