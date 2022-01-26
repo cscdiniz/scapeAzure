@@ -9,7 +9,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@pipeline().parameters.files",
+						"value": "@pipeline().parameters.files.value",
 						"type": "Expression"
 					},
 					"activities": [
@@ -86,7 +86,7 @@
 		],
 		"parameters": {
 			"files": {
-				"type": "array"
+				"type": "object"
 			},
 			"pathfile": {
 				"type": "string"
