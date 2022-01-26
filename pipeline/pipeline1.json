@@ -138,7 +138,10 @@
 			},
 			"Path": {
 				"type": "String",
-				"defaultValue": "Booking/*/*/*"
+				"defaultValue": "Booking"
+			},
+			"FileName": {
+				"type": "String"
 			}
 		},
 		"annotations": []
