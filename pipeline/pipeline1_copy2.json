@@ -18,6 +18,12 @@
 					"dataflow": {
 						"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
 						"type": "DataFlowReference",
+						"parameters": {
+							"FilePath": {
+								"value": "'@{'BookingCustomField/2022/01/*/*.parquet'}'",
+								"type": "Expression"
+							}
+						},
 						"datasetParameters": {
 							"Current": {
 								"TableName": {
