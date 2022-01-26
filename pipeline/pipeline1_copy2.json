@@ -92,7 +92,7 @@
 			},
 			"FileName": {
 				"type": "String",
-				"defaultValue": "2022/01/"
+				"defaultValue": "2022/01/10/"
 			},
 			"Folders": {
 				"type": "Array"
