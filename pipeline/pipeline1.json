@@ -111,6 +111,10 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
+					"items": {
+						"value": "@variables('Files')",
+						"type": "Expression"
+					},
 					"activities": [
 						{
 							"name": "Data flow1",
@@ -148,12 +152,15 @@
 									},
 									"datasetParameters": {
 										"StructuredFile": {
-											"File": "@item().name",
+											"File": {
+												"value": "@item().name",
+												"type": "Expression"
+											},
 											"Directory": "'Booking'"
 										},
 										"Current": {
 											"TableName": {
-												"value": "@item().name",
+												"value": "@variables('Directory')",
 												"type": "Expression"
 											}
 										}
