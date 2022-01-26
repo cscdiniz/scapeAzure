@@ -37,14 +37,7 @@
 			{
 				"name": "ForEach1",
 				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "Get Metadata1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
@@ -129,6 +122,36 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "ForEach2",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"activities": [
+						{
+							"name": "Append variable1",
+							"type": "AppendVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "Folders",
+								"value": {
+									"value": "@item().name",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
 			}
 		],
 		"variables": {
@@ -138,10 +161,14 @@
 			},
 			"Path": {
 				"type": "String",
-				"defaultValue": "Booking/2022/"
+				"defaultValue": "Booking/2022/01/"
 			},
 			"FileName": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "2022/01/"
+			},
+			"Folders": {
+				"type": "Array"
 			}
 		},
 		"annotations": []
