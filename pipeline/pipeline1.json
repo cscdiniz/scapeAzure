@@ -61,7 +61,7 @@
 							"typeProperties": {
 								"variableName": "Files",
 								"value": {
-									"value": "@concat(variables('FileName') , '/', item().name)",
+									"value": "@concat(variables('FileName') , '/', item().value)",
 									"type": "Expression"
 								}
 							}
