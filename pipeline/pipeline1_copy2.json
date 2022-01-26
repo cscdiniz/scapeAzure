@@ -20,7 +20,7 @@
 						"type": "DataFlowReference",
 						"parameters": {
 							"File": {
-								"value": "'@{2022/01/10/Booking_37D6A823-FBFD-4F7D-91E6-166093199974.parquet}'",
+								"value": "'@{2022}'",
 								"type": "Expression"
 							},
 							"Directory": {
@@ -33,16 +33,6 @@
 							}
 						},
 						"datasetParameters": {
-							"StructuredFile": {
-								"File": {
-									"value": "2022/01/10/Booking_37D6A823-FBFD-4F7D-91E6-166093199974.parquet",
-									"type": "Expression"
-								},
-								"Directory": {
-									"value": "Booking",
-									"type": "Expression"
-								}
-							},
 							"Current": {
 								"TableName": {
 									"value": "Booking",
