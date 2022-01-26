@@ -50,7 +50,7 @@
 									"datasetParameters": {
 										"StructuredFile": {
 											"File": {
-												"value": "@item()",
+												"value": "@concat(variables('FileName'), item())",
 												"type": "Expression"
 											},
 											"Directory": {
