@@ -51,11 +51,11 @@
 		"variables": {
 			"Directory": {
 				"type": "String",
-				"defaultValue": "Booking"
+				"defaultValue": "Entry"
 			},
 			"Path": {
 				"type": "String",
-				"defaultValue": "Booking/2022/01/"
+				"defaultValue": "Entry/2022/01/"
 			},
 			"FileName": {
 				"type": "String",
