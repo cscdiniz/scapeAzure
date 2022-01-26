@@ -87,6 +87,9 @@
 		"parameters": {
 			"files": {
 				"type": "array"
+			},
+			"pathfile": {
+				"type": "string"
 			}
 		},
 		"variables": {
