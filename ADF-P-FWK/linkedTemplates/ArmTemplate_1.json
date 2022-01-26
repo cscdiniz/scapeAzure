@@ -3512,11 +3512,11 @@
 											"type": "DataFlowReference",
 											"parameters": {
 												"File": {
-													"value": "'@{concat(pipeline().parameters.pathfile, item().name)}'",
+													"value": "@concat(pipeline().parameters.pathfile, item().name)",
 													"type": "Expression"
 												},
 												"Directory": {
-													"value": "'@{variables('Directory')}'",
+													"value": "@variables('Directory')",
 													"type": "Expression"
 												},
 												"ExecutionDate": {
@@ -3524,7 +3524,7 @@
 													"type": "Expression"
 												},
 												"RunId": {
-													"value": "'@{-1}'",
+													"value": "-1",
 													"type": "Expression"
 												}
 											},
