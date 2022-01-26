@@ -78,6 +78,59 @@
 									}
 								}
 							}
+						},
+						{
+							"name": "Data flow1",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "1.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
+									"type": "DataFlowReference",
+									"parameters": {
+										"File": {
+											"value": "@concat(variables('Path'), item().name, '/*.parquet')",
+											"type": "Expression"
+										},
+										"Directory": {
+											"value": "@variables('Directory')",
+											"type": "Expression"
+										},
+										"RunId": {
+											"value": "-1",
+											"type": "Expression"
+										}
+									},
+									"datasetParameters": {
+										"Current": {
+											"TableName": {
+												"value": "@variables('Directory')",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"staging": {
+									"linkedService": {
+										"referenceName": "Blob_dimport",
+										"type": "LinkedServiceReference"
+									},
+									"folderPath": "staging"
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
 						}
 					]
 				}
