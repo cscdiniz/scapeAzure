@@ -784,7 +784,7 @@
 								},
 								"RecordsAffected": {
 									"value": {
-										"value": "@activity('Synapse - SP').output.value",
+										"value": "0",
 										"type": "Expression"
 									},
 									"type": "Int32"
