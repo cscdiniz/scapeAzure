@@ -4109,7 +4109,7 @@
 							"storedProcedureParameters": {
 								"ExecutionDate": {
 									"value": {
-										"value": "@convertTimeZone(pipeline().TriggerTime, 'AUS Eastern Standard Time','yyyy-MM-ddTHH:mm:ssZ')",
+										"value": "@formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'yyyy-MM-ddTHH:mm:ssZ')",
 										"type": "Expression"
 									},
 									"type": "DateTime"
