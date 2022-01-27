@@ -5359,8 +5359,8 @@
 					"recurrence": {
 						"frequency": "Day",
 						"interval": 1,
-						"startTime": "2022-01-17T06:00:00Z",
-						"timeZone": "UTC",
+						"startTime": "2022-01-17T06:00:00",
+						"timeZone": "AUS Eastern Standard Time",
 						"schedule": {
 							"minutes": [
 								0
