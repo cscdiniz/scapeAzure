@@ -3940,12 +3940,19 @@
 											},
 											"datasetParameters": {
 												"StructuredFile": {},
+												"HST": {
+													"TableName": {
+														"value": "@pipeline().parameters.StructuredDirectory",
+														"type": "Expression"
+													}
+												},
 												"Current": {
 													"TableName": {
 														"value": "@pipeline().parameters.StructuredDirectory",
 														"type": "Expression"
 													}
-												}
+												},
+												"sink1": {}
 											}
 										},
 										"staging": {
@@ -4679,16 +4686,50 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "Set variable1",
-						"type": "SetVariable",
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
 						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
 						"userProperties": [],
 						"typeProperties": {
-							"variableName": "date",
-							"value": {
-								"value": "@convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time')",
-								"type": "Expression"
-							}
+							"dataflow": {
+								"referenceName": "DF_ADL2STRUCTUREDToCURRENT",
+								"type": "DataFlowReference",
+								"parameters": {
+									"FilePath": {
+										"value": "'@{'Booking/2022/01/*/*.parquet'}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"StructuredFile": {},
+									"HST": {
+										"TableName": "Booking"
+									},
+									"Current": {
+										"TableName": "Booking"
+									},
+									"sink1": {}
+								}
+							},
+							"staging": {
+								"linkedService": {
+									"referenceName": "Blob_dimport",
+									"type": "LinkedServiceReference"
+								},
+								"folderPath": "staging"
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
 						}
 					}
 				],
@@ -4703,7 +4744,10 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_ADL2STRUCTUREDToCURRENT')]",
+				"[concat(variables('factoryId'), '/linkedServices/Blob_dimport')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ADLCurrent')]",
@@ -5425,6 +5469,13 @@
 								"type": "LinkedServiceReference"
 							},
 							"name": "StructuredFile"
+						},
+						{
+							"dataset": {
+								"referenceName": "AzureSynapseAnalytics",
+								"type": "DatasetReference"
+							},
+							"name": "HST"
 						}
 					],
 					"sinks": [
@@ -5434,9 +5485,15 @@
 								"type": "DatasetReference"
 							},
 							"name": "Current"
+						},
+						{
+							"name": "sink1"
 						}
 					],
 					"transformations": [
+						{
+							"name": "DistinctRows"
+						},
 						{
 							"name": "AddColumns"
 						},
@@ -5444,7 +5501,7 @@
 							"name": "AlterRow1"
 						}
 					],
-					"script": "parameters{\n\tFilePath as string ('BookingCustomField/2022/01/*/*.parquet')\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: true,\n\tformat: 'parquet',\n\tfileSystem: 'structured',\n\tcompressionCodec: 'snappy',\n\twildcardPaths:[($FilePath)],\n\tmode: 'read') ~> StructuredFile\nStructuredFile derive(HASH = sha2(512,columns()),\n\t\tExecutionCreatedDate = fromUTC(currentTimestamp(), 'AUS Eastern Standard Time'),\n\t\tExecutionLogId = '-1') ~> AddColumns\nAddColumns alterRow(upsertIf(true())) ~> AlterRow1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: true,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['HASH'],\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current"
+					"script": "parameters{\n\tFilePath as string ('BookingCustomField/2022/01/*/*.parquet')\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: true,\n\tformat: 'parquet',\n\tfileSystem: 'structured',\n\tcompressionCodec: 'snappy',\n\twildcardPaths:[($FilePath)],\n\tmode: 'read') ~> StructuredFile\nsource(output(\n\t\tBookingID as long,\n\t\tRoomSpaceID as long,\n\t\tEntryID as long,\n\t\tEntryStatusEnum as long,\n\t\tRoomTypeID as long,\n\t\tGroupID as long,\n\t\tRoomLocationID as long,\n\t\tStart_BookingReasonID as long,\n\t\tEnd_BookingReasonID as long,\n\t\tBookingTypeID as long,\n\t\tRoomRateID as long,\n\t\tBookingLinkTypeEnum as long,\n\t\tTermSessionID as long,\n\t\tHousekeepingID as long,\n\t\tEntryInvitationID as long,\n\t\tRoomLocationFixed as boolean,\n\t\tRoomRateAmount as double,\n\t\tCheckInDate as string,\n\t\tCheckOutDate as string,\n\t\tETA as long,\n\t\tETD as long,\n\t\tCheckInDateActual as string,\n\t\tCheckOutDateActual as string,\n\t\tDateChargedTo as string,\n\t\tContractDateStart as string,\n\t\tContractDateEnd as string,\n\t\tResvChargeToEntry as boolean,\n\t\tNumberOfGuests as long,\n\t\tNumberOfGuestsFree as long,\n\t\tNumberOfChildren as long,\n\t\tNumberOfChildrenFree as long,\n\t\tSpecialRequirement as string,\n\t\tComments as string,\n\t\tDateBilled as string,\n\t\tAutoAllocationDetail as string,\n\t\tAdditionalOccupantCount as long,\n\t\tEmotionalSupportAnimalCount as long,\n\t\tServiceAnimalCount as long,\n\t\tPetCount as long,\n\t\tPaidTo as string,\n\t\tExcess as double,\n\t\tCustomBit1 as boolean,\n\t\tCustomBit2 as boolean,\n\t\tCustomBit3 as boolean,\n\t\tCustomBit4 as boolean,\n\t\tCustomString1 as string,\n\t\tCustomString2 as string,\n\t\tCustomString3 as string,\n\t\tCustomString4 as string,\n\t\tCustomString5 as string,\n\t\tCustomString6 as string,\n\t\tCustomString7 as string,\n\t\tCustomString8 as string,\n\t\tCustomString9 as string,\n\t\tCustomString10 as string,\n\t\tCustomDate1 as string,\n\t\tCustomDate2 as string,\n\t\tCustomDate3 as string,\n\t\tCustomDate4 as string,\n\t\tSecurityUserID as long,\n\t\tDateModifiedBilling as string,\n\t\tDateCreated as string,\n\t\tDateModified as string,\n\t\tHASH as binary,\n\t\tExecutionStatus as string,\n\t\tExecutionCreatedDate as timestamp,\n\t\tExecutionModifiedDate as timestamp,\n\t\tExecutionLogId as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table',\n\tstaged: true) ~> HST\nStructuredFile aggregate(groupBy(mycols = sha2(256,columns())),\n\teach(match(true()), $$ = first($$))) ~> DistinctRows\nDistinctRows derive(HASH = sha2Binary(512,columns()),\n\t\tExecutionCreatedDate = fromUTC(currentTimestamp(), 'AUS Eastern Standard Time'),\n\t\tExecutionLogId = '-1') ~> AddColumns\nAddColumns alterRow(upsertIf(equals(HASH,sink1#outputs()[1].HASH)),\n\tinsertIf(notEquals((HASH),sink1#outputs()[1].HASH))) ~> AlterRow1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: true,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['HASH'],\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current\nHST sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tstore: 'cache',\n\tformat: 'inline',\n\toutput: false,\n\tsaveOrder: 1) ~> sink1"
 				}
 			},
 			"dependsOn": [
