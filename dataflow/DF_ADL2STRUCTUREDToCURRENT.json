@@ -26,23 +26,23 @@
 						"type": "DatasetReference"
 					},
 					"name": "Current"
+				},
+				{
+					"name": "sink1"
 				}
 			],
 			"transformations": [
+				{
+					"name": "DistinctRows"
+				},
 				{
 					"name": "AddColumns"
 				},
 				{
 					"name": "AlterRow1"
-				},
-				{
-					"name": "Aggregate1"
-				},
-				{
-					"name": "Lookup1"
 				}
 			],
-			"script": "parameters{\n\tFilePath as string ('BookingCustomField/2022/01/*/*.parquet')\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: true,\n\tformat: 'parquet',\n\tfileSystem: 'structured',\n\tcompressionCodec: 'snappy',\n\twildcardPaths:[($FilePath)],\n\tmode: 'read') ~> StructuredFile\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table',\n\tstaged: true) ~> HST\nAggregate1 derive(HASH = sha2(512,columns()),\n\t\tExecutionCreatedDate = fromUTC(currentTimestamp(), 'AUS Eastern Standard Time'),\n\t\tExecutionLogId = '-1') ~> AddColumns\nAddColumns alterRow(upsertIf(true())) ~> AlterRow1\nLookup1 aggregate() ~> Aggregate1\nStructuredFile, HST lookup(ERROR_FUNCTION('') == ERROR_FUNCTION(''),\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> Lookup1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: true,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['HASH'],\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current"
+			"script": "parameters{\n\tFilePath as string ('BookingCustomField/2022/01/*/*.parquet')\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: true,\n\tformat: 'parquet',\n\tfileSystem: 'structured',\n\tcompressionCodec: 'snappy',\n\twildcardPaths:[($FilePath)],\n\tmode: 'read') ~> StructuredFile\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table',\n\tstaged: true) ~> HST\nStructuredFile aggregate(groupBy(mycols = sha2(256,columns())),\n\teach(match(true()), $$ = first($$))) ~> DistinctRows\nDistinctRows derive(HASH = sha2(512,columns()),\n\t\tExecutionCreatedDate = fromUTC(currentTimestamp(), 'AUS Eastern Standard Time'),\n\t\tExecutionLogId = '-1') ~> AddColumns\nAddColumns alterRow(upsertIf(equals((HASH), sink1#outputs().HASH)),\n\tinsertIf(notEquals((HASH), sink1#outputs()[1].HASH))) ~> AlterRow1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: true,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:true,\n\tkeys:['HASH'],\n\tformat: 'table',\n\tstaged: true,\n\tallowCopyCommand: true,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tpreCommands: [],\n\tpostCommands: []) ~> Current\nHST sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tstore: 'cache',\n\tformat: 'inline',\n\toutput: false,\n\tsaveOrder: 1) ~> sink1"
 		}
 	}
 }
