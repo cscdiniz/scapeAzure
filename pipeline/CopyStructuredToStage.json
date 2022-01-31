@@ -145,6 +145,12 @@
 										}
 									},
 									"datasetParameters": {
+										"HST": {
+											"TableName": {
+												"value": "@pipeline().parameters.StructuredDirectory",
+												"type": "Expression"
+											}
+										},
 										"Current": {
 											"TableName": {
 												"value": "@pipeline().parameters.StructuredDirectory",
