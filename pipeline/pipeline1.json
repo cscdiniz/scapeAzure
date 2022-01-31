@@ -3,19 +3,6 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Set variable1",
-				"type": "SetVariable",
-				"dependsOn": [],
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "date",
-					"value": {
-						"value": "@convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time')",
-						"type": "Expression"
-					}
-				}
-			},
-			{
 				"name": "Data flow1",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
@@ -45,6 +32,13 @@
 								"TableName": "Booking"
 							}
 						}
+					},
+					"staging": {
+						"linkedService": {
+							"referenceName": "Blob_dimport",
+							"type": "LinkedServiceReference"
+						},
+						"folderPath": "staging"
 					},
 					"compute": {
 						"coreCount": 8,
