@@ -125,7 +125,14 @@
 						{
 							"name": "Data flow1",
 							"type": "ExecuteDataFlow",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "DROP TABLE INDEX",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "1.00:00:00",
 								"retry": 0,
@@ -174,6 +181,72 @@
 								"cacheSinks": {
 									"firstRowOnly": true
 								}
+							}
+						},
+						{
+							"name": "DROP TABLE INDEX",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[AlterTableIndex]",
+								"storedProcedureParameters": {
+									"Action": {
+										"value": "DISABLE",
+										"type": "String"
+									},
+									"TableName": {
+										"value": {
+											"value": "@concat('[', pipeline().parameters.StructuredDirectory, ']')",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "Synapse",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "REBUILD TABLE INDEX",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[AlterTableIndex]",
+								"storedProcedureParameters": {
+									"Action": {
+										"value": "REBUILD",
+										"type": "String"
+									},
+									"TableName": {
+										"value": {
+											"value": "@concat('[', pipeline().parameters.StructuredDirectory, ']')",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "Synapse",
+								"type": "LinkedServiceReference"
 							}
 						}
 					]
