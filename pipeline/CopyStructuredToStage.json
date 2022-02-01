@@ -62,7 +62,7 @@
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [
 								{
-									"activity": "Data flow1",
+									"activity": "REBUILD TABLE INDEX",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -219,7 +219,14 @@
 						{
 							"name": "REBUILD TABLE INDEX",
 							"type": "SqlServerStoredProcedure",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Data flow1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
