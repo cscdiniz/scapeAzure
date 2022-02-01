@@ -142,10 +142,6 @@
 										"FilePath": {
 											"value": "'@{concat(pipeline().parameters.StructuredDirectory, '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'yyyy'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'MM'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'dd'), '/*.parquet')}'",
 											"type": "Expression"
-										},
-										"TableName": {
-											"value": "'@{pipeline().parameters.StructuredDirectory}'",
-											"type": "Expression"
 										}
 									},
 									"datasetParameters": {
