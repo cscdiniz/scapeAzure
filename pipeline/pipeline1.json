@@ -20,16 +20,16 @@
 						"type": "DataFlowReference",
 						"parameters": {
 							"FilePath": {
-								"value": "'@{'RoomType/2022/*/*/*.parquet'}'",
+								"value": "'@{'RoomSpace/2022/*/*/*.parquet'}'",
 								"type": "Expression"
 							}
 						},
 						"datasetParameters": {
 							"HST": {
-								"TableName": "RoomType"
+								"TableName": "RoomSpace"
 							},
 							"Current": {
-								"TableName": "RoomType"
+								"TableName": "RoomSpace"
 							}
 						}
 					},
