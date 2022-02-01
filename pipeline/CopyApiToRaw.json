@@ -34,8 +34,7 @@
 							"filePattern": "setOfObjects"
 						}
 					},
-					"enableStaging": false,
-					"dataIntegrationUnits": 4
+					"enableStaging": false
 				},
 				"inputs": [
 					{
