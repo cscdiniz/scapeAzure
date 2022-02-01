@@ -3856,7 +3856,7 @@
 									"type": "SqlServerStoredProcedure",
 									"dependsOn": [
 										{
-											"activity": "Data flow1",
+											"activity": "REBUILD TABLE INDEX",
 											"dependencyConditions": [
 												"Succeeded"
 											]
@@ -3919,7 +3919,14 @@
 								{
 									"name": "Data flow1",
 									"type": "ExecuteDataFlow",
-									"dependsOn": [],
+									"dependsOn": [
+										{
+											"activity": "DROP TABLE INDEX",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
 									"policy": {
 										"timeout": "1.00:00:00",
 										"retry": 0,
@@ -3971,6 +3978,79 @@
 											"firstRowOnly": true
 										}
 									}
+								},
+								{
+									"name": "DROP TABLE INDEX",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[AlterTableIndex]",
+										"storedProcedureParameters": {
+											"Action": {
+												"value": "DISABLE",
+												"type": "String"
+											},
+											"TableName": {
+												"value": {
+													"value": "@concat('[', pipeline().parameters.StructuredDirectory, ']')",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "Synapse",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "REBUILD TABLE INDEX",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Data flow1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[AlterTableIndex]",
+										"storedProcedureParameters": {
+											"Action": {
+												"value": "REBUILD",
+												"type": "String"
+											},
+											"TableName": {
+												"value": {
+													"value": "@concat('[', pipeline().parameters.StructuredDirectory, ']')",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "Synapse",
+										"type": "LinkedServiceReference"
+									}
 								}
 							]
 						}
@@ -4006,7 +4086,8 @@
 				"[concat(variables('factoryId'), '/datasets/ADLStructured')]",
 				"[concat(variables('factoryId'), '/linkedServices/SupportDatabase')]",
 				"[concat(variables('factoryId'), '/dataflows/DF_ADL2STRUCTUREDToCURRENT')]",
-				"[concat(variables('factoryId'), '/linkedServices/Blob_dimport')]"
+				"[concat(variables('factoryId'), '/linkedServices/Blob_dimport')]",
+				"[concat(variables('factoryId'), '/linkedServices/Synapse')]"
 			]
 		},
 		{
