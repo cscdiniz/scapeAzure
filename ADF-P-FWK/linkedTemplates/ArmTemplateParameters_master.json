@@ -44,6 +44,9 @@
 		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
 			"value": "Rent Roll"
 		},
+		"PitTables_properties_01-Grandparent_parameters_BatchName": {
+			"value": "PitTables"
+		},
 		"containerUri": {
 			"value": ""
 		},

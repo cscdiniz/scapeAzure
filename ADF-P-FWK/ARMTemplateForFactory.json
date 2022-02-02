@@ -58,6 +58,10 @@
 		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
 			"type": "string",
 			"defaultValue": "Rent Roll"
+		},
+		"PitTables_properties_01-Grandparent_parameters_BatchName": {
+			"type": "string",
+			"defaultValue": "PitTables"
 		}
 	},
 	"variables": {
@@ -5410,7 +5414,7 @@
 								0
 							],
 							"hours": [
-								6
+								1
 							]
 						}
 					}
@@ -5444,8 +5448,8 @@
 				"type": "ScheduleTrigger",
 				"typeProperties": {
 					"recurrence": {
-						"frequency": "Hour",
-						"interval": 1,
+						"frequency": "Minute",
+						"interval": 30,
 						"startTime": "2020-04-06T15:00:00",
 						"timeZone": "AUS Eastern Standard Time"
 					}
@@ -5569,6 +5573,46 @@
 				"[concat(variables('factoryId'), '/datasets/ADLStructured')]",
 				"[concat(variables('factoryId'), '/datasets/AzureSynapseAnalytics')]",
 				"[concat(variables('factoryId'), '/datasets/GetSetMetadata')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PitTables')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "01-Grandparent",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"BatchName": "[parameters('PitTables_properties_01-Grandparent_parameters_BatchName')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2022-02-02T04:03:00",
+						"timeZone": "AUS Eastern Standard Time",
+						"schedule": {
+							"minutes": [
+								0
+							],
+							"hours": [
+								1
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/01-Grandparent')]"
 			]
 		}
 	]

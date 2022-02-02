@@ -59,6 +59,10 @@
 			"type": "string",
 			"defaultValue": "Rent Roll"
 		},
+		"PitTables_properties_01-Grandparent_parameters_BatchName": {
+			"type": "string",
+			"defaultValue": "PitTables"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -142,6 +146,9 @@
 					},
 					"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
 						"value": "[parameters('Rent Roll_properties_01-Grandparent_parameters_BatchName')]"
+					},
+					"PitTables_properties_01-Grandparent_parameters_BatchName": {
+						"value": "[parameters('PitTables_properties_01-Grandparent_parameters_BatchName')]"
 					}
 				}
 			},
