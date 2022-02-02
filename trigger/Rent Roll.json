@@ -20,8 +20,8 @@
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
-				"frequency": "Hour",
-				"interval": 1,
+				"frequency": "Minute",
+				"interval": 30,
 				"startTime": "2020-04-06T15:00:00",
 				"timeZone": "AUS Eastern Standard Time"
 			}
