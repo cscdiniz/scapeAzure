@@ -55,13 +55,13 @@
 			"type": "string",
 			"defaultValue": "Bed Room Building"
 		},
-		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
-			"type": "string",
-			"defaultValue": "Rent Roll"
-		},
 		"PitTables_properties_01-Grandparent_parameters_BatchName": {
 			"type": "string",
 			"defaultValue": "PitTables"
+		},
+		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
+			"type": "string",
+			"defaultValue": "Rent Roll"
 		},
 		"containerUri": {
 			"type": "string",
@@ -144,11 +144,11 @@
 					"Bed Room Building_properties_01-Grandparent_parameters_BatchName": {
 						"value": "[parameters('Bed Room Building_properties_01-Grandparent_parameters_BatchName')]"
 					},
-					"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
-						"value": "[parameters('Rent Roll_properties_01-Grandparent_parameters_BatchName')]"
-					},
 					"PitTables_properties_01-Grandparent_parameters_BatchName": {
 						"value": "[parameters('PitTables_properties_01-Grandparent_parameters_BatchName')]"
+					},
+					"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
+						"value": "[parameters('Rent Roll_properties_01-Grandparent_parameters_BatchName')]"
 					}
 				}
 			},

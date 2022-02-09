@@ -55,13 +55,13 @@
 			"type": "string",
 			"defaultValue": "Bed Room Building"
 		},
-		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
-			"type": "string",
-			"defaultValue": "Rent Roll"
-		},
 		"PitTables_properties_01-Grandparent_parameters_BatchName": {
 			"type": "string",
 			"defaultValue": "PitTables"
+		},
+		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
+			"type": "string",
+			"defaultValue": "Rent Roll"
 		}
 	},
 	"variables": {
@@ -3938,7 +3938,7 @@
 											"type": "DataFlowReference",
 											"parameters": {
 												"FilePath": {
-													"value": "'@{concat(pipeline().parameters.StructuredDirectory, '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'yyyy'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'MM'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'dd'), '/*.parquet')}'",
+													"value": "'@{concat(trim(pipeline().parameters.StructuredDirectory), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'yyyy'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'MM'), '/', formatDateTime(convertTimeZone(utcNow(), 'UTC' ,'AUS Eastern Standard Time'),'dd'), '/*.parquet')}'",
 													"type": "Expression"
 												}
 											},
@@ -4329,7 +4329,7 @@
 									"typeProperties": {
 										"variableName": "Object",
 										"value": {
-											"value": "@item().Object",
+											"value": "@trim(item().Object)",
 											"type": "Expression"
 										}
 									}
@@ -5425,6 +5425,46 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/PitTables')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "01-Grandparent",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"BatchName": "[parameters('PitTables_properties_01-Grandparent_parameters_BatchName')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2022-02-02T04:03:00",
+						"timeZone": "AUS Eastern Standard Time",
+						"schedule": {
+							"minutes": [
+								0
+							],
+							"hours": [
+								1
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/01-Grandparent')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Rent Roll')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -5573,46 +5613,6 @@
 				"[concat(variables('factoryId'), '/datasets/ADLStructured')]",
 				"[concat(variables('factoryId'), '/datasets/AzureSynapseAnalytics')]",
 				"[concat(variables('factoryId'), '/datasets/GetSetMetadata')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PitTables')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "01-Grandparent",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"BatchName": "[parameters('PitTables_properties_01-Grandparent_parameters_BatchName')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Day",
-						"interval": 1,
-						"startTime": "2022-02-02T04:03:00",
-						"timeZone": "AUS Eastern Standard Time",
-						"schedule": {
-							"minutes": [
-								0
-							],
-							"hours": [
-								1
-							]
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/01-Grandparent')]"
 			]
 		}
 	]

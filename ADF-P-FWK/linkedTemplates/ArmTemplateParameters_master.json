@@ -41,11 +41,11 @@
 		"Bed Room Building_properties_01-Grandparent_parameters_BatchName": {
 			"value": "Bed Room Building"
 		},
-		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
-			"value": "Rent Roll"
-		},
 		"PitTables_properties_01-Grandparent_parameters_BatchName": {
 			"value": "PitTables"
+		},
+		"Rent Roll_properties_01-Grandparent_parameters_BatchName": {
+			"value": "Rent Roll"
 		},
 		"containerUri": {
 			"value": ""
