@@ -76,7 +76,7 @@
 							"typeProperties": {
 								"variableName": "Object",
 								"value": {
-									"value": "@item().Object",
+									"value": "@trim(item().Object)",
 									"type": "Expression"
 								}
 							}
